@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <!-- maximum-scale=1 + user-scalable=no disables pinch / double-tap zoom.
+       Combined with `touch-action: manipulation` on body, this prevents
+       accidental zoom gestures on mobile. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F1E8" />
+  <!-- Standard PWA flag (supersedes the Apple-specific one below, but we
+       keep both for compat with older iOS). -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Ledger" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="The Family Ledger — a friendly self-hosted dashboard for your family budget." />
+
+  <title>The Family Ledger</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..900,0..100;1,9..144,400..900,0..100&family=Figtree:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="paper" id="paper">
+
+    <header class="masthead">
+      <div class="masthead__rule masthead__rule--top"></div>
+      <div class="masthead__meta">
+        <span class="masthead__edition" id="masthead-edition">— LOADING —</span>
+        <span class="masthead__issue">Vol. I · No. <span id="issue-number">—</span></span>
+      </div>
+      <h1 class="masthead__title" id="masthead-title">The Family Ledger</h1>
+      <p class="masthead__subtitle" id="privacy-toggle" role="button" tabindex="0"
+         aria-label="Toggle privacy mode">A Household Almanac &amp; Record of Means</p>
+      <div class="masthead__rule masthead__rule--bottom"></div>
+    </header>
+
+    <!-- HERO — This month at a glance -->
+    <section class="section section--hero" data-reveal-index="0">
+      <p class="section__eyebrow">This Month at a Glance</p>
+
+      <div class="hero__month">
+        <span class="hero__month-label" id="hero-month">—</span>
+        <span class="hero__month-year" id="hero-year">—</span>
+      </div>
+
+      <p class="hero__day">
+        Day <span id="day-of-month">—</span> <span class="hero__day-of">of</span> <span id="days-in-month">—</span>
+      </p>
+
+      <div class="hero__bar" role="progressbar" aria-label="month progress">
+        <div class="hero__bar-fill" id="month-progress"></div>
+        <div class="hero__bar-tick" id="month-tick"></div>
+      </div>
+
+      <div class="hero__stats">
+        <div class="stat">
+          <span class="stat__label">Spent</span>
+          <span class="stat__value" id="total-spent">$0.00</span>
+        </div>
+        <span class="stat__divider">/</span>
+        <div class="stat">
+          <span class="stat__label">Budgeted</span>
+          <span class="stat__value" id="total-budgeted">$0.00</span>
+        </div>
+      </div>
+
+      <!-- Shown only when baseCategories is configured (config.json);
+           hidden by main.js in single-bucket mode. -->
+      <dl class="hero__breakdown" aria-label="Fixed versus discretionary spending">
+        <div class="hero__breakdown-row">
+          <dt title="Fixed bills and pre-committed costs that fire on their own">Base</dt>
+          <dd>
+            <span id="base-spent">$0.00</span>
+            <small> / <span id="base-budgeted">$0.00</span></small>
+          </dd>
+        </div>
+        <div class="hero__breakdown-row">
+          <dt title="Variable spending you control month-to-month">Discretionary</dt>
+          <dd>
+            <span id="disc-spent">$0.00</span>
+            <small> / <span id="disc-budgeted">$0.00</span></small>
+          </dd>
+        </div>
+      </dl>
+
+      <p class="hero__message" id="hero-message">Gathering the figures…</p>
+    </section>
+
+    <!-- SPENDING — Category group breakdown -->
+    <section class="section" data-reveal-index="1">
+      <p class="section__eyebrow">Where It's Going</p>
+      <div id="groups-container" class="groups"></div>
+    </section>
+
+    <!-- RECENT — Ledger entries -->
+    <section class="section" data-reveal-index="2">
+      <p class="section__eyebrow">Recent Entries</p>
+      <ol class="ledger" id="ledger-list"></ol>
+      <button type="button" class="ledger__expand" id="ledger-expand"
+              aria-expanded="false" aria-controls="ledger-list">
+        <span id="ledger-expand-label">Show all entries this month</span>
+        <span class="ledger__expand-arrow" aria-hidden="true">→</span>
+      </button>
+    </section>
+
+    <!-- ACCOUNTS — Balance sheet (collapsible; collapsed by default) -->
+    <section class="section" data-reveal-index="3">
+      <button type="button" class="section__eyebrow section__eyebrow--toggle"
+              id="accounts-toggle" aria-expanded="false" aria-controls="accounts-wrap">
+        <span class="section__eyebrow-text">The Accounts</span>
+        <span class="section__chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="section__collapsible" id="accounts-wrap">
+        <div class="section__collapsible-inner">
+          <div id="accounts-container" class="accounts"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOALS — Savings progress (collapsible; hidden without goals.json) -->
+    <section class="section" data-reveal-index="4">
+      <button type="button" class="section__eyebrow section__eyebrow--toggle"
+              id="goals-toggle" aria-expanded="false" aria-controls="goals-wrap">
+        <span class="section__eyebrow-text">Toward the Goals</span>
+        <span class="section__chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="section__collapsible" id="goals-wrap">
+        <div class="section__collapsible-inner">
+          <div id="goals-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NET WORTH — total & liquid, snapshot history chart (collapsible) -->
+    <section class="section" data-reveal-index="5">
+      <button type="button" class="section__eyebrow section__eyebrow--toggle"
+              id="networth-toggle" aria-expanded="false" aria-controls="networth-wrap">
+        <span class="section__eyebrow-text">The Net Worth</span>
+        <span class="section__chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="section__collapsible" id="networth-wrap">
+        <div class="section__collapsible-inner">
+          <div id="networth-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORT — Monthly reckoning (collapsible; collapsed by default) -->
+    <section class="section" data-reveal-index="5">
+      <button type="button" class="section__eyebrow section__eyebrow--toggle"
+              id="report-toggle" aria-expanded="false" aria-controls="report-wrap">
+        <span class="section__eyebrow-text">The Monthly Reckoning</span>
+        <span class="section__chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div class="section__collapsible" id="report-wrap">
+        <div class="section__collapsible-inner">
+          <div id="report-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="colophon" data-reveal-index="5">
+      <div class="colophon__rule"></div>
+      <p class="colophon__updated" id="refresh-button" role="button" tabindex="0"
+         aria-label="Refresh figures from the budget">
+        Last set in type · <span id="updated-time">—</span>
+      </p>
+      <p class="colophon__sync" id="sync-button" role="button" tabindex="0"
+         aria-label="Pull fresh transactions from linked banks now">
+        <span id="sync-label">Banks last synced</span> · <span id="sync-time">—</span>
+      </p>
+      <p class="colophon__motto">
+        <span class="colophon__asterism">✦ ✦ ✦</span><br />
+        Every dollar accounted.<br />
+        Every goal in view.
+      </p>
+    </footer>
+  </main>
+
+  <div class="privacy-badge" id="privacy-badge" aria-hidden="true"></div>
+
+  <div class="error-banner" id="error-banner" hidden>
+    <span id="error-banner-text"></span>
+    <button type="button" id="error-retry">Retry</button>
+  </div>
+
+  <!-- Split transaction modal (bottom-sheet on mobile, centered on desktop) -->
+  <div class="split-modal" id="split-modal" hidden aria-hidden="true" role="dialog"
+       aria-labelledby="split-modal-title" aria-modal="true">
+    <div class="split-modal__backdrop" id="split-modal-backdrop"></div>
+    <div class="split-modal__sheet" role="document">
+      <header class="split-modal__header">
+        <h3 class="split-modal__title" id="split-modal-title">Split Transaction</h3>
+        <button type="button" class="split-modal__close" id="split-modal-close"
+                aria-label="Close split modal">&times;</button>
+      </header>
+
+      <div class="split-modal__parent">
+        <div class="split-modal__parent-row">
+          <span class="split-modal__parent-label">Payee</span>
+          <span class="split-modal__parent-value" id="split-parent-payee">—</span>
+        </div>
+        <div class="split-modal__parent-row">
+          <span class="split-modal__parent-label">Date</span>
+          <span class="split-modal__parent-value" id="split-parent-date">—</span>
+        </div>
+        <div class="split-modal__parent-row">
+          <span class="split-modal__parent-label">Total</span>
+          <span class="split-modal__parent-value split-modal__parent-amount"
+                id="split-parent-amount">$0.00</span>
+        </div>
+      </div>
+
+      <div class="split-modal__rows" id="split-modal-rows"></div>
+
+      <button type="button" class="split-modal__add" id="split-modal-add">
+        + add another split
+      </button>
+
+      <div class="split-modal__totals">
+        <span class="split-modal__totals-label">Allocated</span>
+        <span class="split-modal__totals-value" id="split-allocated">$0.00</span>
+        <span class="split-modal__totals-remaining" id="split-remaining"></span>
+      </div>
+
+      <footer class="split-modal__footer">
+        <button type="button" class="split-modal__btn" id="split-modal-cancel">Cancel</button>
+        <button type="button" class="split-modal__btn split-modal__btn--primary"
+                id="split-modal-save" disabled>Save splits</button>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Optional overlay for users who want to put a real domain in front of
+# The Family Ledger with automatic HTTPS, instead of hitting it by
+# LAN IP and port. Most home setups do NOT need this — skip it unless
+# you already have a domain pointed at this machine.
+#
+# Usage:
+#   cp Caddyfile.example Caddyfile   # then edit the domains inside
+#   docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
+
+services:
+  caddy:
+    image: caddy:2
+    container_name: family-ledger-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - dashboard
+      - actual-server
+    networks:
+      - family-ledger
+
+volumes:
+  caddy_data:
+  caddy_config:

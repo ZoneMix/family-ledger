@@ -1,0 +1,10 @@
+.env
+cache/
+state/
+actual-data/
+backups/
+config.json
+goals.json
+networth.json
+node_modules/
+*.log

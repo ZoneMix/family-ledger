@@ -1,0 +1,1970 @@
+/* ─────────────────────────────────────────────────────────────
+   The Family Ledger — stylesheet
+   An editorial household almanac.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Paper & ink */
+  --paper:        #f5f1e8;
+  --paper-warm:   #faf6ea;
+  --paper-shade:  #ede7d6;
+  --ink:          #1a1612;
+  --ink-strong:   #0f0c08;
+  --ink-soft:     #4a3f35;
+  --ink-faded:    #8a7f70;
+  --ink-ghost:    #b8ad9b;
+
+  /* Accents */
+  --rust:         #b8472e;
+  --rust-dark:    #8a3520;
+  --rust-soft:    #d97757;
+  --teal:         #2d5a5e;
+  --forest:       #3d5c3a;
+  --wine:         #7a2b2b;
+
+  /* Rules & lines */
+  --rule:         #6b5f4f;
+  --rule-light:   #d8cdb4;
+  --rule-dotted:  #bfb297;
+
+  /* Surround */
+  --surround-1:   #1c1610;
+  --surround-2:   #0a0806;
+
+  /* Motion */
+  --ease:         cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--surround-2);
+  min-height: 100%;
+  /* Prevent any stray wide element from triggering horizontal scroll
+     on narrow phones. */
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  /* touch-action: manipulation disables double-tap-to-zoom without
+     disabling scrolling. Combined with maximum-scale=1 in the viewport
+     meta, this fully prevents accidental zoom gestures on mobile. */
+  touch-action: manipulation;
+  /* iOS notch / Android cutout safe-area insets. Viewport-fit=cover in
+     the viewport meta enables env(safe-area-inset-*). Bottom padding
+     covers the iOS home-indicator area. */
+  padding:
+    calc(clamp(1rem, 3vw, 3rem) + env(safe-area-inset-top, 0px))
+    calc(clamp(0.5rem, 2vw, 2rem) + env(safe-area-inset-right, 0px))
+    calc(3rem + env(safe-area-inset-bottom, 0px))
+    calc(clamp(0.5rem, 2vw, 2rem) + env(safe-area-inset-left, 0px));
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%,
+      color-mix(in srgb, var(--rust) 8%, var(--surround-1)) 0%,
+      var(--surround-1) 40%,
+      var(--surround-2) 100%);
+}
+
+/* ─── Paper ───────────────────────────────────────────────── */
+
+.paper {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(1.75rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3rem) clamp(2rem, 4vw, 2.5rem);
+  position: relative;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.05) inset,
+    0 0 0 1px rgba(26,22,18,0.04),
+    0 8px 20px -8px rgba(0,0,0,0.35),
+    0 40px 80px -20px rgba(0,0,0,0.55);
+  /* Subtle deckle edge feel */
+  border-radius: 1px;
+}
+
+/* Paper grain — tiny SVG noise, multiplied in */
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0.28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm light spot in corner */
+.paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 40% at 50% 0%,
+    rgba(255, 240, 200, 0.35) 0%,
+    transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.paper > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Masthead ────────────────────────────────────────────── */
+
+.masthead {
+  text-align: center;
+  margin-bottom: clamp(2.25rem, 6vw, 3.5rem);
+  opacity: 0;
+  animation: masthead-in 1.1s var(--ease) 0.1s forwards;
+}
+
+@keyframes masthead-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.masthead__rule {
+  height: 4px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.masthead__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0;
+  margin: 0;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.masthead__edition {
+  transform: translateY(1px);
+}
+
+.masthead__issue {
+  font-variant-numeric: tabular-nums;
+}
+
+.masthead__title {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-weight: 900;
+  font-variation-settings: "opsz" 144, "SOFT" 0;
+  font-size: clamp(2.5rem, 9.5vw, 4.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  color: var(--ink-strong);
+  margin: 0.25rem 0 0.5rem;
+  /* Subtle ink texture */
+  text-shadow: 0 0 1px rgba(26,22,18,0.05);
+}
+
+.masthead__subtitle {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 24;
+  font-weight: 400;
+  font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Section framework ──────────────────────────────────── */
+
+.section {
+  margin: clamp(2.5rem, 6vw, 3.75rem) 0;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: section-in 0.85s var(--ease) forwards;
+}
+
+.section[data-reveal-index="0"] { animation-delay: 0.25s; }
+.section[data-reveal-index="1"] { animation-delay: 0.38s; }
+.section[data-reveal-index="2"] { animation-delay: 0.51s; }
+.section[data-reveal-index="3"] { animation-delay: 0.64s; }
+.section[data-reveal-index="4"] { animation-delay: 0.77s; }
+.section[data-reveal-index="5"] { animation-delay: 0.90s; }
+
+@keyframes section-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section__eyebrow {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--rust);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.section__eyebrow::before,
+.section__eyebrow::after {
+  content: "";
+  flex: 0 0 2rem;
+  height: 1px;
+  background: var(--ink);
+}
+
+/* When the eyebrow is also a toggle button (e.g. The Accounts, Goals),
+   style it as a tappable control without losing the editorial hairlines.
+   Button UA styles have to be reset. */
+button.section__eyebrow--toggle {
+  background: transparent;
+  border: none;
+  padding: 0.4rem 0;
+  width: 100%;
+  cursor: pointer;
+  color: var(--rust);
+  font: inherit;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+  min-height: 44px;
+  /* Zero the bottom margin when the section is COLLAPSED — the
+     section's own top/bottom margins provide enough breathing room,
+     and keeping the 1.5rem eyebrow margin-bottom produced a giant
+     blank gap between collapsed sections. Restored when expanded. */
+  margin-bottom: 0;
+  transition: margin-bottom 0.22s var(--ease);
+}
+
+button.section__eyebrow--toggle.is-expanded {
+  margin-bottom: 1.5rem;
+}
+
+.section__eyebrow--toggle .section__chevron {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-family: 'Fraunces', serif;
+  font-size: 1.1em;
+  line-height: 1;
+  transition: transform 0.25s var(--ease);
+  letter-spacing: 0;
+}
+
+.section__eyebrow--toggle.is-expanded .section__chevron {
+  transform: rotate(180deg);
+}
+
+.section__eyebrow--toggle:hover,
+.section__eyebrow--toggle:focus-visible {
+  color: var(--rust-dark);
+  outline: none;
+}
+
+/* Max-height + opacity slide-down. grid-template-rows animation
+   technically works in modern browsers but triggers a full layout
+   recalc on every frame — visibly laggy on phones with long lists.
+   max-height is cheaper and composites better, and opacity is
+   GPU-accelerated, so this combo feels smooth.
+   The cap (1200px) is well above any realistic section height; if
+   content exceeds it the transition will feel slightly clipped at
+   the tail end but it won't break. */
+.section__collapsible {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    max-height 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.2s ease 0.04s,
+    transform 0.22s ease 0.04s;
+  will-change: max-height, opacity;
+}
+
+.section__collapsible.is-expanded {
+  /* Generous ceiling: content past max-height gets CLIPPED, which reads
+     as "the chart is broken". Mobile stacks fact rows vertically, nearly
+     doubling section height, so this must stay large. */
+  max-height: 16000px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Inner wrapper is a passive container — no longer needs overflow
+   tricks because max-height on the outer wrap handles clipping. */
+.section__collapsible-inner {
+  min-height: 0;
+}
+
+/* ─── Hero ────────────────────────────────────────────────── */
+
+.section--hero {
+  text-align: center;
+}
+
+.hero__month {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15em;
+  font-family: 'Fraunces', serif;
+  line-height: 0.88;
+  margin: 0.5rem 0 1rem;
+}
+
+.hero__month-label {
+  font-size: clamp(4rem, 14vw, 6rem);
+  font-weight: 900;
+  font-variation-settings: "opsz" 144, "SOFT" 0;
+  letter-spacing: -0.035em;
+  color: var(--ink-strong);
+  text-transform: uppercase;
+}
+
+.hero__month-year {
+  font-size: clamp(2rem, 6.5vw, 2.75rem);
+  font-style: italic;
+  font-weight: 700;
+  font-variation-settings: "opsz" 72;
+  color: var(--rust);
+  letter-spacing: -0.02em;
+}
+
+.hero__day {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-faded);
+  margin-bottom: 0.85rem;
+}
+
+.hero__day-of {
+  color: var(--ink-ghost);
+  margin: 0 0.1rem;
+}
+
+.hero__day span:first-of-type,
+.hero__day span:last-of-type {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.hero__bar {
+  position: relative;
+  max-width: 320px;
+  margin: 0 auto 2rem;
+  height: 2px;
+  background: var(--rule-light);
+}
+
+.hero__bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--ink);
+  transition: width 1.4s var(--ease) 0.5s;
+}
+
+.hero__bar-tick {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--rust);
+  transform: translateX(-1px);
+  left: 0;
+  opacity: 0;
+  transition: left 1.4s var(--ease) 0.5s, opacity 0.6s ease 1.6s;
+}
+
+.hero__bar-tick.is-visible { opacity: 1; }
+
+.hero__stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.stat__label {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-faded);
+}
+
+.stat__value {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 72;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 4.5vw, 1.85rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-strong);
+  letter-spacing: -0.01em;
+}
+
+.stat__divider {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  color: var(--rule);
+  transform: translateY(0.1em);
+}
+
+/* Base vs Discretionary breakdown — two compact rows between
+   the main Spent/Budgeted stats and the hero message. */
+.hero__breakdown {
+  /* min() caps the width on wide screens but lets it shrink below
+     22rem on phones narrower than ~352px (e.g. iPhone SE @ 320px). */
+  max-width: min(22rem, 100%);
+  margin: 0 auto 1.25rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px dotted var(--rule-dotted);
+  border-bottom: 1px dotted var(--rule-dotted);
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.hero__breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.hero__breakdown-row dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-faded);
+  /* Stop single-word labels from wrapping on narrow screens */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hero__breakdown-row dd {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.hero__breakdown-row dd small {
+  color: var(--ink-faded);
+  font-weight: 400;
+  font-size: 0.88em;
+  margin-left: 0.1em;
+}
+
+.hero__message {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 24;
+  font-size: clamp(0.95rem, 2.3vw, 1.05rem);
+  color: var(--ink-soft);
+  max-width: 32ch;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* ─── Goals ───────────────────────────────────────────────── */
+
+.goal {
+  padding: 1.25rem 0 1.35rem;
+  border-top: 1px solid var(--rule-light);
+}
+
+.goal:last-child {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.goal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.goal__name {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 48;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 3vw, 1.25rem);
+  color: var(--ink-strong);
+  letter-spacing: -0.005em;
+}
+
+.goal__amount {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 24;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  color: var(--ink-faded);
+  white-space: nowrap;
+}
+
+.goal__current {
+  color: var(--rust);
+  font-weight: 700;
+}
+
+.goal__slash {
+  margin: 0 0.15em;
+  color: var(--rule);
+}
+
+.goal__bar {
+  position: relative;
+  height: 7px;
+  background: var(--rule-light);
+  overflow: hidden;
+}
+
+.goal__bar::before {
+  /* Hand-drawn tally marks beneath the progress */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0, transparent 9px,
+    var(--rule-dotted) 9px, var(--rule-dotted) 10px
+  );
+  opacity: 0.45;
+}
+
+.goal__bar-fill {
+  position: relative;
+  height: 100%;
+  background: var(--rust);
+  width: 0;
+  transition: width 1.7s var(--ease) 0.7s;
+}
+
+.goal__bar-fill--forest { background: var(--forest); }
+
+/* ── Fact rows (label · value pairs in info cards) ── */
+.fact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  padding: 0.18rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.fact-row__label {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink-faded);
+  align-self: center;
+}
+
+
+.goal__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.goal__caption strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* On narrow phones, stack the caption rows vertically so
+   "40.5% · ABOUT 11 MONTHS TO GO" and "$570/MO SET ASIDE" each
+   get their own line without mid-phrase wrapping. */
+@media (max-width: 480px) {
+  .goal__caption {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    letter-spacing: 0.06em;
+    font-size: 0.68rem;
+  }
+  .goal__caption > span {
+    max-width: 100%;
+  }
+}
+
+/* ─── Accounts (balance sheet) ────────────────────────────── */
+
+.accounts {
+  display: flex;
+  flex-direction: column;
+}
+
+.account {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.9rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule-light);
+  align-items: baseline;
+}
+
+.accounts .account:last-child {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.account__mark {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  min-width: 2.25rem;
+}
+
+.account__name {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account__name small {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.7rem;
+  color: var(--ink-faded);
+  font-weight: 400;
+  margin-top: 0.1rem;
+}
+
+.account__balance {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 24;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink-strong);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.account__balance--negative { color: var(--wine); }
+.account__balance--offbudget { color: var(--ink-faded); font-weight: 500; }
+
+.accounts__subheader {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-faded);
+  margin: 1.5rem 0 0.2rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px dotted var(--rule-dotted);
+}
+
+.accounts__subheader:first-child { margin-top: 0; }
+
+.accounts__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 0.9rem;
+  padding: 0.8rem 0 0;
+  border-top: 2px solid var(--ink);
+}
+
+.accounts__total-label {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.accounts__total-value {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 48;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--ink-strong);
+}
+
+/* ─── Sensitive amount masking ─────────────────────────────
+   Net-worth figures are masked by default. Tap toggles
+   body.reveal-sensitive which swaps between the masked span and
+   the value span. Persists in localStorage. */
+
+.sensitive-amount__masked,
+.sensitive-amount__value {
+  display: inline;
+}
+
+
+.sensitive-amount__masked {
+  color: var(--ink-faded);
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+
+/* ─── Category groups ─────────────────────────────────────── */
+
+.groups {
+  display: flex;
+  flex-direction: column;
+}
+
+.group {
+  padding: 1.35rem 0;
+  border-top: 1px solid var(--rule-light);
+}
+
+.group:last-child {
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.group__header {
+  /* Reset button UA styles so the toggle looks like a row */
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 0.5rem 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  min-height: 44px;
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.08);
+}
+
+.group__header:hover .group__name,
+.group__header:focus-visible .group__name {
+  color: var(--rust);
+}
+
+.group__header:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.group__header--no-children {
+  cursor: default;
+}
+
+.group__header--no-children .group__chevron {
+  display: none;
+}
+
+.group__chevron {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--ink-faded);
+  transition: transform 0.25s var(--ease);
+  flex-shrink: 0;
+  display: inline-block;
+  margin-left: 0.35rem;
+}
+
+.group__header.is-expanded .group__chevron {
+  transform: rotate(180deg);
+  color: var(--rust);
+}
+
+/* Collapsible wrapper for the categories list.
+   Same max-height + opacity pattern as .section__collapsible — grid-row
+   animation was visibly laggy on mobile because it triggers full layout
+   recalc every frame. max-height + opacity composites much cheaper.
+   600px cap is well above the tallest realistic group (~11 categories
+   ≈ 380px). */
+.group__categories-wrap {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    max-height 0.26s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.18s ease 0.03s,
+    transform 0.2s ease 0.03s;
+  will-change: max-height, opacity;
+}
+
+.group__categories-wrap.is-expanded {
+  max-height: 600px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.group__categories-inner {
+  min-height: 0;
+}
+
+.group__name {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 48;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.8vw, 1.2rem);
+  color: var(--ink-strong);
+  letter-spacing: -0.005em;
+}
+
+.group__amount {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 24;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.group__amount--of {
+  color: var(--ink-soft);
+  font-size: 0.85em;
+}
+
+.group__bar {
+  height: 4px;
+  background: var(--rule-light);
+  overflow: hidden;
+}
+
+.group__bar-fill {
+  height: 100%;
+  background: var(--ink);
+  width: 0;
+  transition: width 1.6s var(--ease) 0.85s;
+}
+
+.group__bar-fill--warn { background: var(--rust); }
+.group__bar-fill--over { background: var(--wine); }
+
+.group__categories {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+
+.group__category {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  border-bottom: 1px dotted var(--rule-dotted);
+}
+
+.group__category:last-child {
+  border-bottom: none;
+}
+
+.group__category-name {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.group__category-amount {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.group__category-amount--over {
+  color: var(--wine);
+}
+
+.group__category-amount small {
+  /* Secondary to the spent amount, but readable — was --ink-ghost which
+     got lost against the warm paper on many displays. */
+  color: var(--ink-faded);
+  font-weight: 400;
+  font-size: 0.9em;
+  margin-left: 0.25em;
+}
+
+/* Dim empty groups / categories so they're visible for parity with
+   Actual's list but don't distract from active ones. */
+.group--empty {
+  opacity: 0.5;
+}
+
+.group--empty .group__name {
+  font-style: italic;
+}
+
+.group__category--empty {
+  opacity: 0.55;
+}
+
+.group__category--empty .group__category-name {
+  font-style: italic;
+}
+
+/* ─── Ledger ──────────────────────────────────────────────── */
+
+.ledger {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule-light);
+}
+
+.ledger__entry {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 0.9rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.ledger__date {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-faded);
+  text-align: center;
+  padding-top: 0.2rem;
+  border-right: 1px solid var(--rule-light);
+  padding-right: 0.9rem;
+}
+
+.ledger__date strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink-strong);
+  line-height: 1;
+}
+
+.ledger__date span {
+  display: block;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 0.15rem;
+}
+
+.ledger__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ledger__payee {
+  font-family: 'Figtree', sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ledger__category {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--ink-faded);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inline category picker — OVERLAY pattern.
+   A visible <span class="ledger__category-display"> shows the current
+   category name. A tiny caret <span> sits right next to it. An invisible
+   native <select> absolutely covers the whole pill so tapping it opens
+   the OS picker. This avoids the native <select> fit-content bug where
+   the select sizes to its LONGEST option instead of the selected one,
+   which was leaving a visible gap between the category name and caret. */
+.ledger__category-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0.4rem 0;
+  min-height: 32px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+}
+
+.ledger__category-display {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--ink-faded);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  transition: color 0.15s var(--ease);
+}
+
+.ledger__category-caret {
+  font-family: 'Fraunces', serif;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--ink-faded);
+  flex-shrink: 0;
+  transform: translateY(1px);
+  transition: color 0.15s var(--ease);
+}
+
+.ledger__category-pill:hover .ledger__category-display,
+.ledger__category-pill:hover .ledger__category-caret,
+.ledger__category-pill:focus-within .ledger__category-display,
+.ledger__category-pill:focus-within .ledger__category-caret {
+  color: var(--ink-soft);
+}
+
+/* Uncategorized variant — same overlay pill (still tappable to open the
+   picker), but renders italic + faded so it visually reads as "needs a
+   home" without losing the edit affordance. */
+.ledger__category-pill--uncategorized .ledger__category-display {
+  font-style: italic;
+  color: var(--ink-ghost);
+}
+.ledger__category-pill--uncategorized .ledger__category-caret {
+  color: var(--ink-ghost);
+}
+
+.ledger__category-pill.is-saving .ledger__category-display,
+.ledger__category-pill.is-saving .ledger__category-caret {
+  color: var(--rust);
+  opacity: 0.7;
+}
+
+/* The actual native <select> is absolutely positioned to cover the pill
+   and made transparent. It still receives taps, gets focus, and fires
+   change/focusout events — so the OS picker and the defer-render logic
+   keep working. font-size: 16px prevents iOS zoom-on-focus. */
+.ledger__category-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Make it cover the full tappable pill area */
+  padding: 0;
+  margin: 0;
+}
+
+
+.ledger__category-select:hover,
+.ledger__category-select:focus-visible {
+  color: var(--ink-soft);
+  outline: none;
+}
+
+.ledger__category-select.is-saving {
+  color: var(--rust);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Native select options inherit system font regardless — we can only
+   style the closed state. Accept the trade-off for native mobile UX. */
+.ledger__category-select option,
+.ledger__category-select optgroup {
+  font-family: system-ui, sans-serif;
+  font-style: normal;
+  color: var(--ink);
+  background: var(--paper-warm);
+}
+
+.ledger__amount {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 48;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  color: var(--ink-strong);
+  text-align: right;
+  padding-top: 0.1rem;
+  white-space: nowrap;
+}
+
+.ledger__amount--positive { color: var(--forest); }
+.ledger__amount--positive::before { content: "+"; }
+
+/* ─── Colophon (footer) ───────────────────────────────────── */
+
+.colophon {
+  margin: clamp(3rem, 7vw, 4.5rem) 0 0;
+  padding-top: 1.25rem;
+  text-align: center;
+}
+
+.colophon__rule {
+  height: 4px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 1.25rem;
+}
+
+.colophon__updated {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-faded);
+  margin-bottom: 1.25rem;
+  /* Tap to force a fresh pull from Actual. Generous vertical padding
+     gives a ~44px minimum touch target per Apple HIG / Material. */
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s var(--ease);
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  display: inline-block;
+}
+
+.colophon__updated:hover,
+.colophon__updated:focus-visible {
+  color: var(--ink-soft);
+  outline: none;
+}
+
+.colophon__updated.is-refreshing {
+  color: var(--rust);
+}
+
+.colophon__updated.is-refreshing::after {
+  content: ' · refreshing';
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* "Banks last synced · X" — sibling of .colophon__updated. Same look,
+   tappable to fire a manual bank sync (POST /api/sync). On error, the
+   stale state is signaled by the .is-stale class (warm-faded color);
+   while syncing, .is-syncing dims it and appends a status word. */
+.colophon__sync {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-faded);
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s var(--ease);
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  display: inline-block;
+}
+
+.colophon__sync:hover,
+.colophon__sync:focus-visible {
+  color: var(--ink-soft);
+  outline: none;
+}
+
+.colophon__sync.is-stale {
+  color: var(--rust);
+}
+
+/* Partial state — most accounts synced fine, one or more is stuck.
+   Slightly muted compared to .is-stale (which means total failure or
+   long-stale). Uses ink-soft so it reads as "noted but not alarming". */
+.colophon__sync.is-partial {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.colophon__sync.is-syncing {
+  color: var(--rust);
+}
+
+.colophon__sync.is-syncing::after {
+  content: ' · syncing';
+  font-style: italic;
+  font-weight: 400;
+}
+
+.colophon__motto {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 24;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.colophon__asterism {
+  display: block;
+  color: var(--rust);
+  letter-spacing: 0.5em;
+  margin-bottom: 0.65rem;
+  font-style: normal;
+  font-size: 0.9rem;
+}
+
+/* ─── Privacy mode ────────────────────────────────────────── */
+
+/* Tap target — the masthead subtitle becomes a secret toggle.
+   No visible affordance so it's not obvious to onlookers. */
+#privacy-toggle {
+  cursor: default;           /* don't betray it's interactive */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* When tapped, a very brief flash so the user feels the press */
+#privacy-toggle:active {
+  opacity: 0.5;
+  transition: opacity 0.05s;
+}
+
+/* Small badge that slides in from the right when privacy is on.
+   Visible only to the person holding the phone — confirms the mode. */
+.privacy-badge {
+  position: fixed;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rust);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+body.privacy-on .privacy-badge {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ─── Error banner ────────────────────────────────────────── */
+
+.error-banner {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--wine);
+  color: var(--paper-warm);
+  padding: 0.75rem 1.25rem;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.85rem;
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10;
+}
+
+.error-banner[hidden] {
+  display: none;
+}
+
+.error-banner button {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--paper-warm);
+  border: 1px solid var(--paper-warm);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.error-banner button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ─── Mobile refinements ──────────────────────────────────── */
+
+/* ─── Ledger expand/collapse button ────────────────────────── */
+
+.ledger__expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0.75rem 0 0;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: 1px dashed var(--rule);
+  border-radius: 6px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  min-height: 44px;
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+}
+
+.ledger__expand:hover,
+.ledger__expand:focus-visible {
+  color: var(--rust);
+  border-color: var(--rust);
+  outline: none;
+}
+
+.ledger__expand-arrow {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05em;
+  line-height: 1;
+  transition: transform 0.2s var(--ease);
+}
+
+.ledger__expand.is-expanded .ledger__expand-arrow {
+  transform: rotate(180deg);
+}
+
+.ledger__expand.is-loading {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ledger__expand:disabled {
+  cursor: not-allowed;
+}
+
+/* ─── Ledger amount as a button (tap-to-split) ─────────────── */
+
+.ledger__amount {
+  /* Re-style the <button> to look like the original <span> but still
+     feel tappable. Subtle dashed underline hints at interactivity
+     without visual noise. */
+  background: transparent;
+  border: none;
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 48;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  color: var(--ink-strong);
+  text-align: right;
+  padding: 0.4rem 0;
+  min-height: 40px;
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.15s var(--ease);
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+}
+
+.ledger__amount:hover,
+.ledger__amount:focus-visible {
+  border-bottom-color: var(--ink-faded);
+  outline: none;
+}
+
+.ledger__amount--is-split {
+  cursor: help;
+  border-bottom-color: var(--rule-dotted);
+  font-style: italic;
+}
+
+.ledger__entry--split .ledger__payee::after {
+  content: " ↔";
+  color: var(--rust);
+  font-weight: 400;
+}
+
+.ledger__category-split {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: "opsz" 14;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--rust);
+  letter-spacing: 0.01em;
+}
+
+/* ─── Split transaction modal ──────────────────────────────── */
+
+.split-modal[hidden] { display: none; }
+
+.split-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: split-modal-in 0.2s var(--ease);
+}
+
+@keyframes split-modal-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.split-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.split-modal__sheet {
+  position: relative;
+  background: var(--paper-warm);
+  color: var(--ink);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  max-height: 90dvh;
+  border-radius: 14px 14px 0 0;
+  padding: 1.25rem 1.25rem 1rem;
+  /* Safe-area inset for iOS home indicator */
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.35);
+  overflow-y: auto;
+  animation: split-sheet-in 0.28s var(--ease);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+@keyframes split-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.split-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dotted var(--rule-dotted);
+}
+
+.split-modal__title {
+  font-family: 'Fraunces', serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--ink-strong);
+  margin: 0;
+}
+
+.split-modal__close {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--ink-faded);
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+}
+
+.split-modal__close:hover,
+.split-modal__close:focus-visible {
+  color: var(--rust);
+  outline: none;
+}
+
+.split-modal__parent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--paper-shade);
+  border-radius: 8px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.85rem;
+}
+
+.split-modal__parent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.split-modal__parent-label {
+  color: var(--ink-faded);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.split-modal__parent-value {
+  color: var(--ink-strong);
+  font-weight: 500;
+  text-align: right;
+}
+
+.split-modal__parent-amount {
+  font-family: 'Fraunces', serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.split-modal__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.split-row {
+  display: grid;
+  grid-template-columns: 1fr 6.5rem 2.2rem;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.split-row__category,
+.split-row__amount {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.65rem;
+  background: var(--paper);
+  color: var(--ink-strong);
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  min-height: 44px;
+}
+
+.split-row__category {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M0 0 L5 7 L10 0 Z' fill='%238a7f70'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 8px 6px;
+  padding-right: 1.8rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.split-row__amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.split-row__amount:focus,
+.split-row__category:focus {
+  outline: 2px solid var(--rust);
+  outline-offset: 1px;
+}
+
+.split-row__remove {
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  color: var(--ink-faded);
+  font-size: 1.2rem;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0;
+}
+
+.split-row__remove:hover,
+.split-row__remove:focus-visible {
+  color: var(--rust);
+  border-color: var(--rust);
+  outline: none;
+}
+
+.split-modal__add {
+  background: transparent;
+  border: 1px dashed var(--rule);
+  border-radius: 6px;
+  color: var(--ink-soft);
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.65rem;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.split-modal__add:hover,
+.split-modal__add:focus-visible {
+  color: var(--rust);
+  border-color: var(--rust);
+  outline: none;
+}
+
+.split-modal__totals {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-top: 1px dotted var(--rule-dotted);
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.82rem;
+}
+
+.split-modal__totals-label {
+  color: var(--ink-faded);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+}
+
+.split-modal__totals-value {
+  font-family: 'Fraunces', serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--ink-strong);
+  flex: 1;
+  text-align: right;
+}
+
+.split-modal__totals-remaining {
+  color: var(--ink-faded);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.split-modal__totals-remaining.is-ok { color: var(--forest); }
+.split-modal__totals-remaining.is-over { color: var(--rust); }
+
+.split-modal__footer {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  padding-top: 0.35rem;
+}
+
+.split-modal__btn {
+  font-family: 'Figtree', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.75rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink-strong);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 88px;
+}
+
+.split-modal__btn:hover,
+.split-modal__btn:focus-visible {
+  border-color: var(--ink);
+  outline: none;
+}
+
+.split-modal__btn--primary {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.split-modal__btn--primary:hover:not(:disabled),
+.split-modal__btn--primary:focus-visible:not(:disabled) {
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+.split-modal__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Prevent background scroll while the modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .paper {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+  .masthead__title {
+    font-size: 2.35rem;
+  }
+  .masthead__meta {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+  }
+  .hero__month-label { font-size: 3.75rem; }
+  .hero__month-year { font-size: 1.75rem; }
+  .hero__stats { gap: 0.75rem; }
+  .stat__value { font-size: 1.35rem; }
+  .stat__divider { font-size: 1.75rem; }
+  .section__eyebrow::before,
+  .section__eyebrow::after { flex-basis: 1.25rem; }
+  .ledger__entry { grid-template-columns: 2.25rem 1fr auto; gap: 0.65rem; }
+  .ledger__date { padding-right: 0.65rem; }
+  .ledger__amount { font-size: 0.95rem; padding: 0.35rem 0; }
+
+  /* Split modal takes the full screen width on phones */
+  .split-modal__sheet {
+    max-width: 100%;
+    padding: 1rem 1rem 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .split-row {
+    grid-template-columns: 1fr 5.5rem 2rem;
+    gap: 0.4rem;
+  }
+  .split-row__category,
+  .split-row__amount {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.55rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .masthead__title { font-size: 2rem; }
+  .hero__month-label { font-size: 3rem; }
+  .hero__month-year { font-size: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── The Monthly Reckoning (report section) ──────────────── */
+.report__head {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin: 1.1rem 0 0.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dotted var(--rule-dotted);
+}
+.report__head:first-child { margin-top: 0; }
+
+.report__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.28rem 0;
+  font-size: 0.92rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--rule-light) 45%, transparent);
+}
+.report__row:last-of-type { border-bottom: none; }
+
+.report__label {
+  color: var(--ink-soft);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.report__val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.report__val--neg { color: var(--rust-dark); }
+.report__val--pos { color: var(--forest); }
+
+.report__row--total {
+  margin-top: 0.15rem;
+  padding-top: 0.5rem;
+  border-top: 1.5px solid var(--rule);
+  border-bottom: none;
+}
+.report__row--total .report__label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+}
+.report__row--total .report__val { font-size: 1.05rem; }
+
+.report__caption {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--ink-faded);
+  margin: 0.35rem 0 0.2rem;
+}
+
+/* ── Net Worth chart ──────────────────────────────────────
+   Hand-rolled SVG in the paper's ink; responsive via viewBox. */
+.hh-chart { margin: 0.9rem 0 0.5rem; }
+.hh-chart__svg { width: 100%; height: auto; display: block; }
+.hh-chart__grid {
+  stroke: var(--ink-ghost);
+  stroke-width: 0.6;
+  stroke-dasharray: 2 4;
+}
+.hh-chart__zero { stroke: var(--ink-soft); stroke-width: 0.8; }
+.hh-chart__event {
+  stroke: var(--ink-soft);
+  stroke-width: 0.7;
+  stroke-dasharray: 1 4;
+}
+.hh-chart__ylabel,
+.hh-chart__xlabel {
+  font-size: 10px;
+  fill: var(--ink-faded);
+}
+.hh-chart__line {
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.hh-chart__line--networth { stroke: var(--ink-strong); }
+.hh-chart__dot { fill: var(--rust); }
+
+/* Net worth joins the tap-to-reveal system (see the sensitive-amount
+   block above): stat-row values and the chart's y-axis labels hide
+   until body.reveal-sensitive is set. */
+.fact-row__value--sensitive .sensitive-amount__value { display: none; }
+body.reveal-sensitive .fact-row__value--sensitive .sensitive-amount__masked { display: none; }
+body.reveal-sensitive .fact-row__value--sensitive .sensitive-amount__value { display: inline; }
+.fact-row__value--sensitive {
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+.fact-row__value--sensitive:hover,
+.fact-row__value--sensitive:focus-visible {
+  border-bottom-color: var(--ink-faded);
+  outline: none;
+}
+.hh-chart__ylabel--value { display: none; }
+body.reveal-sensitive .hh-chart__ylabel--masked { display: none; }
+body.reveal-sensitive .hh-chart__ylabel--value { display: inline; }
+
+/* ── Mobile: stat-dense sections (Net Worth fact rows) stack instead
+   of fighting for horizontal space. Kept at the end of the file so
+   these win the cascade. ── */
+@media (max-width: 560px) {
+  /* Stat rows: label above value, full-width, even vertical rhythm */
+  .fact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.14rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted var(--ink-ghost);
+  }
+  .fact-row:last-child { border-bottom: none; }
+  .fact-row .fact-row__label { align-self: flex-start; }
+  .fact-row__value {
+    text-align: left;
+    line-height: 1.45;
+    font-size: 0.82rem;
+  }
+
+
+
+  /* Net-worth chart: tighter margins on a phone */
+  .hh-chart { margin: 0.7rem 0 0.4rem; }
+}

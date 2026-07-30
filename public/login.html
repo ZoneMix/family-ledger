@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in — The Family Ledger</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #14120f;
+    color: #f0e9dc;
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 360px;
+    border: 1px solid #3a352c;
+    border-radius: 8px;
+    padding: 32px;
+    background: #1b1812;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+    font-weight: normal;
+    letter-spacing: 0.02em;
+  }
+  p.sub {
+    margin: 0 0 24px;
+    color: #ada593;
+    font-size: 0.9rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: #cfc7b4;
+  }
+  input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid #4a4436;
+    background: #0f0d0a;
+    color: #f0e9dc;
+    font-family: inherit;
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+  input[type="password"]:focus {
+    outline: 2px solid #b89b5e;
+    outline-offset: 1px;
+  }
+  button {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 4px;
+    background: #b89b5e;
+    color: #14120f;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button:hover { background: #cbb277; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .error {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: #e0897a;
+    min-height: 1.2em;
+  }
+</style>
+</head>
+<body>
+  <form class="card" id="login-form">
+    <h1>The Family Ledger</h1>
+    <p class="sub">Enter the dashboard password to continue.</p>
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" required autofocus />
+    <button type="submit" id="submit-btn">Sign in</button>
+    <div class="error" id="error-msg" role="alert"></div>
+  </form>
+  <script>
+    (function () {
+      var form = document.getElementById('login-form');
+      var input = document.getElementById('password');
+      var btn = document.getElementById('submit-btn');
+      var errorEl = document.getElementById('error-msg');
+
+      form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        errorEl.textContent = '';
+        btn.disabled = true;
+        fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: input.value }),
+        }).then(function (res) {
+          if (res.status === 204) {
+            location.href = '/';
+            return;
+          }
+          if (res.status === 429) {
+            errorEl.textContent = 'Too many attempts — wait a minute and try again.';
+          } else {
+            errorEl.textContent = 'Incorrect password.';
+          }
+          btn.disabled = false;
+        }).catch(function () {
+          errorEl.textContent = 'Network error — try again.';
+          btn.disabled = false;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

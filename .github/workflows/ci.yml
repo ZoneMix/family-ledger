@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  checks:
+    name: Syntax, dead-CSS, shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax-check JavaScript (no install needed)
+        run: |
+          node --check server.js
+          for f in src/*.js; do node --check "$f"; done
+          node --check scripts/seed-demo.js
+          node --check scripts/dev/css-audit.mjs
+
+      - name: Dead-CSS audit
+        run: node scripts/dev/css-audit.mjs
+
+      - name: Shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck setup.sh update.sh backup.sh seed-demo.sh
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image (not pushed)
+        run: docker build -t family-ledger:ci .

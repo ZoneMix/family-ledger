@@ -1,0 +1,20 @@
+[
+  {
+    "id": "emergency-fund",
+    "name": "Emergency Fund",
+    "target": 5000,
+    "source": "category",
+    "category": "Emergency Fund",
+    "targetDate": null,
+    "note": "3 months of essential expenses — funded from the matching Actual category balance"
+  },
+  {
+    "id": "vacation",
+    "name": "Vacation",
+    "target": 2000,
+    "source": "static",
+    "funded": 450,
+    "targetDate": "2026-12-01",
+    "note": "Tracked manually — update the `funded` field as you save"
+  }
+]

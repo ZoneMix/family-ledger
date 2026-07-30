@@ -1,0 +1,15 @@
+{
+  "name": "family-ledger",
+  "version": "1.0.0",
+  "description": "A friendly self-hosted family dashboard for Actual Budget",
+  "license": "MIT",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@actual-app/api": "26.7.0",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "baseCategories": ["Rent", "Electric", "Internet", "Phone", "Car Insurance"],
+  "hiddenPayees": ["Starting Balance"]
+}

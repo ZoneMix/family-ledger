@@ -1,0 +1,7 @@
+{
+  "homeValue": 250000,
+  "cars": [
+    { "name": "Family Car", "value": 12000 }
+  ],
+  "asof": "2026-01-01"
+}

@@ -1,0 +1,50 @@
+services:
+  actual-server:
+    image: actualbudget/actual-server:26.7.0
+    container_name: actual-server
+    restart: unless-stopped
+    ports:
+      - "${ACTUAL_PORT:-5006}:5006"
+    volumes:
+      - ./actual-data:/data
+    networks:
+      - family-ledger
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dashboard:
+    build: .
+    image: family-ledger:local
+    container_name: family-ledger
+    restart: unless-stopped
+    depends_on:
+      - actual-server
+    ports:
+      - "${DASHBOARD_PORT:-3100}:3000"
+    volumes:
+      - ./cache:/cache
+      - ./state:/state
+    # Settings come from .env via env_file, NOT ${VAR} interpolation:
+    # interpolated values are resolved host-side where a stray exported
+    # ACTUAL_PASSWORD in the user's shell would silently override the
+    # file. env_file reads the file directly, so .env always wins.
+    # (required: false keeps `docker compose config` working pre-setup.)
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ACTUAL_SERVER_URL: http://actual-server:5006
+    networks:
+      - family-ledger
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  family-ledger:
+    driver: bridge

@@ -1,0 +1,26 @@
+# Caddyfile.example — copy this to `Caddyfile` and replace the two
+# placeholder domains below with your own before starting the caddy
+# overlay:
+#
+#   cp Caddyfile.example Caddyfile
+#   docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
+#
+# Caddy automatically requests and renews a free HTTPS certificate for
+# any domain that resolves to this machine's public IP on ports 80/443.
+# That means this setup only works if:
+#   1. You own a domain (or subdomain) you can point at this machine, and
+#   2. Ports 80/443 are reachable from the internet (port-forwarded on
+#      your router, or this machine sits behind a reverse-proxy host
+#      that forwards them).
+#
+# If you're only accessing The Family Ledger from inside your home
+# network, you almost certainly don't need this file at all — just
+# open http://<this-machine's-LAN-IP>:3100 instead. See README.md.
+
+ledger.example.com {
+    reverse_proxy dashboard:3000
+}
+
+budget.example.com {
+    reverse_proxy actual-server:5006
+}
