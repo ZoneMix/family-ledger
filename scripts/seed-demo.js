@@ -321,6 +321,12 @@ async function seedMonth(checkingId, creditCardId, categoryIds, month, isCurrent
     count += 2;
     await setMonthBudgets(ym, categoryIds, CURRENT_MONTH_BUDGETS);
   } else {
+    // Prior months spend Eating Out to EXACTLY its budget. Actual carries
+    // positive category balances forward, so any prior-month leftover here
+    // would cushion the current month's deliberate overspend and the
+    // balance would never show red — the tutorial's key teaching state.
+    await topUpEatingOutOverspend(checkingId, month, categoryIds['Eating Out'], eatingOutSpent, 150, 0);
+    count += 1;
     await setMonthBudgets(ym, categoryIds, FULLY_ASSIGNED_BUDGETS);
   }
 
