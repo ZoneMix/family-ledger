@@ -27,7 +27,8 @@ It's not a replacement for Actual. It reads (and lightly edits) the same budget 
 ## What you need
 
 - A computer that stays on at home — a Raspberry Pi, an old laptop, a small NAS box, whatever you've got
-- [Docker](https://docs.docker.com/engine/install/) and the Docker Compose plugin
+- No spare computer? It runs just as well on your everyday machine with [Docker Desktop](https://docs.docker.com/desktop/) — the dashboard is simply only reachable while that machine is awake
+- [Docker](https://docs.docker.com/engine/install/) and the Docker Compose plugin (setup.sh offers to install these for you on Debian-family Linux)
 - About 10 minutes
 
 You do **not** need to know how to program. If you can copy-paste a command into a terminal, you can run this.
