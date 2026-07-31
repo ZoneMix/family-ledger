@@ -140,11 +140,13 @@ install_docker_apt() {
   sudo systemctl enable --now docker 2>/dev/null || sudo service docker start 2>/dev/null || true
 
   if ! docker info >/dev/null 2>&1; then
+    local current_user
+    current_user="$(id -un)"  # $USER can be unset in non-login shells
     echo
     echo "Docker is installed. Your user needs to join the 'docker' group"
     echo "before it can use it:"
-    sudo usermod -aG docker "$USER"
-    echo "  done — added $USER to the docker group."
+    sudo usermod -aG docker "$current_user"
+    echo "  done — added $current_user to the docker group."
     echo
     echo "Log out and back in (or close and reopen your SSH connection),"
     echo "then run ./setup.sh again to continue."
