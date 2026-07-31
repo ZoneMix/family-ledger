@@ -52,7 +52,7 @@ export function findCategory(budgetMonth, name) {
 const TRANSACTION_FIELDS = [
   'id', 'date', 'amount',
   'payee.name', 'category', 'category.name', 'account.name',
-  'is_parent', 'is_child',
+  'is_parent', 'is_child', 'transfer_id',
 ];
 
 // splits: 'all' is load-bearing: ActualQL's default ('inline') OMITS split

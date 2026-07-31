@@ -481,7 +481,9 @@ export function renderReport() {
     }
   }
 
-  const uncat = txns.filter(t => (t.amount || 0) < 0 && !t.categoryId);
+  // Split parents are categorized through their children, and transfers
+  // can't carry a category at all — neither belongs in this nag count.
+  const uncat = txns.filter(t => (t.amount || 0) < 0 && !t.categoryId && !t.isParent && !t.isTransfer);
   const uncatTotal = uncat.reduce((s, t) => s + Math.abs(t.amount || 0), 0);
   caption(`${uncat.length} uncategorized · ${fmt(uncatTotal)}`);
 }

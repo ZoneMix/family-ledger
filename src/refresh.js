@@ -47,6 +47,9 @@ export function mapTransaction(t) {
     category: t['category.name'],
     account: t['account.name'],
     isParent: !!t.is_parent,
+    // Transfers between accounts can't carry a category in Actual —
+    // flagged so the frontend doesn't count them as "uncategorized".
+    isTransfer: !!t.transfer_id,
   };
 }
 
