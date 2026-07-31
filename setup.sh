@@ -259,6 +259,13 @@ if [ "$NEED_FULL_SETUP" = "1" ]; then
     printf 'DASHBOARD_PASSWORD=%s\n' "$(env_quote "$DASHBOARD_PASSWORD")"
   } > "$ENV_FILE"
 
+  # Pre-create every bind-mounted directory as the current user. If they
+  # don't exist, dockerd creates them owned by ROOT — and the dashboard
+  # (which runs as an unprivileged user) can't write its cache, failing
+  # with a cryptic "mkdir /cache/..." error on first budget download.
+  # (macOS's Docker Desktop masks this; real Linux does not.)
+  mkdir -p cache state actual-data backups
+
   echo
   echo "Starting the Actual Budget server..."
   docker compose up -d actual-server
