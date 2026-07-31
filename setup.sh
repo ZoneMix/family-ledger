@@ -111,10 +111,60 @@ echo
 
 # ─── prerequisite checks ────────────────────────────────────
 
+# Installs Docker from Docker's official apt repository (keyring + source
+# list, no piped installer scripts). Debian/Raspberry Pi OS/Ubuntu only —
+# anything else gets pointed at the docs.
+install_docker_apt() {
+  local codename repo_os
+  # shellcheck source=/dev/null
+  repo_os="$(. /etc/os-release && printf '%s' "$ID")"
+  case "$repo_os" in
+    ubuntu) repo_os="ubuntu" ;;
+    *) repo_os="debian" ;;  # debian + raspbian both use the debian repo (64-bit)
+  esac
+  # shellcheck source=/dev/null
+  codename="$(. /etc/os-release && printf '%s' "$VERSION_CODENAME")"
+
+  echo "Installing Docker from Docker's official repository..."
+  sudo apt-get update
+  sudo apt-get install -y ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL "https://download.docker.com/linux/${repo_os}/gpg" -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
+  printf 'deb [arch=%s signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/%s %s stable\n' \
+    "$(dpkg --print-architecture)" "$repo_os" "$codename" \
+    | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  sudo apt-get update
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+  sudo systemctl enable --now docker 2>/dev/null || sudo service docker start 2>/dev/null || true
+
+  if ! docker info >/dev/null 2>&1; then
+    echo
+    echo "Docker is installed. Your user needs to join the 'docker' group"
+    echo "before it can use it:"
+    sudo usermod -aG docker "$USER"
+    echo "  done — added $USER to the docker group."
+    echo
+    echo "Log out and back in (or close and reopen your SSH connection),"
+    echo "then run ./setup.sh again to continue."
+    exit 0
+  fi
+}
+
 if ! command -v docker >/dev/null 2>&1; then
-  echo "Docker isn't installed (or isn't on your PATH)."
-  echo "Install it first: https://docs.docker.com/engine/install/"
-  exit 1
+  echo "Docker isn't installed yet — it's the tool that runs the apps."
+  if command -v apt-get >/dev/null 2>&1 && [ -r /etc/os-release ]; then
+    if confirm_yes "Install it now from Docker's official repository?"; then
+      install_docker_apt
+    else
+      echo "Install it yourself first: https://docs.docker.com/engine/install/"
+      exit 1
+    fi
+  else
+    echo "Install it first: https://docs.docker.com/engine/install/"
+    exit 1
+  fi
 fi
 
 if ! docker compose version >/dev/null 2>&1; then
