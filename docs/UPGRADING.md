@@ -67,3 +67,18 @@ Because budget-file migrations are one-way, there is no supported "downgrade the
 4. `docker compose up -d --build`
 
 If you didn't take a backup before upgrading, your only recourse is Actual's own export/import (gear icon → Settings → Export budget), if you happened to have a recent one, or your `./backup.sh` cron history if the daily 3am job was enabled during `./setup.sh`.
+
+## 1.0.0 → 1.1.0
+
+See [CHANGELOG.md](../CHANGELOG.md#110---2026-09-09) for the full list of changes — this is a
+security-hardening release, no breaking changes.
+
+1. **Back up first:** `./backup.sh`.
+2. `git pull`, then `docker compose up -d --build`. Both images change: `actual-server` moves to
+   26.9.0 (see the lockstep rule above) and the dashboard image is rebuilt with the new server-side
+   hardening and the self-hosted fonts.
+3. Every new setting (`READ_ONLY`, `BIND_ADDR`, `TRUST_PROXY`, `ACTUAL_FILE_PASSWORD`,
+   `BACKUP_AGE_RECIPIENT`) is off/default unless you opt in — your existing `.env` needs no edits
+   to keep working exactly as before.
+4. `.env` will be re-chmodded to `600` automatically the next time `./setup.sh` runs. To pick that
+   up sooner, run `chmod 600 .env` by hand now.

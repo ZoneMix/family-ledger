@@ -1,6 +1,6 @@
 # The Family Ledger
 
-**Version:** 1.0.0 | **Port:** 3100 (dashboard) / 5006 (Actual) | **Stack:** Node 22 + Express + @actual-app/api, vanilla-JS PWA frontend (no build step)
+**Version:** 1.1.0 | **Port:** 3100 (dashboard) / 5006 (Actual) | **Stack:** Node 22 + Express + @actual-app/api, vanilla-JS PWA frontend (no build step)
 
 ## What
 

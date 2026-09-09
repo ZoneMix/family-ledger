@@ -107,6 +107,20 @@ See [docs/CONFIGURATION.md](docs/CONFIGURATION.md#away-from-home-the-caddy-overl
 
 Either way, you can also restrict which network interface the dashboard binds to by setting `BIND_ADDR` in `.env` — e.g. `BIND_ADDR=127.0.0.1` when Caddy fronts the stack, or `BIND_ADDR=100.x.y.z` (your Tailscale IP) to expose it on the tailnet only, instead of every interface.
 
+## Security
+
+A few defaults worth knowing, whether you're keeping this on a trusted home LAN or exposing it further:
+
+- **Set `DASHBOARD_PASSWORD`** to 12+ characters in `.env`. The dashboard prints a warning at startup if it's unset, since anyone who can reach the port can view and edit the budget.
+- **`READ_ONLY=true`** turns the dashboard into a viewer for the rest of the household — bank sync, recategorizing, and splitting are all disabled, in the UI and at the API.
+- **`BIND_ADDR`** restricts which network interface gets published — set it to `127.0.0.1` when Caddy fronts the stack, or your Tailscale IP to publish on the tailnet only, instead of every interface by default.
+- The session cookie is marked `Secure` automatically once the dashboard is reached over HTTPS (Caddy overlay, Tailscale Serve) — nothing to configure.
+- **`/api/health`** is the only route that skips the login check, and it only ever returns `{"ok": true|false}` — nothing else is exposed unauthenticated.
+- **End-to-end-encrypted budgets are supported** — set `ACTUAL_FILE_PASSWORD` to the encryption password you chose in Actual.
+- **Backups pause Actual for a consistent snapshot, are verified before the script reports success, and can be encrypted at rest** with `BACKUP_AGE_RECIPIENT` — see [Backups](#backups) below.
+
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for the full variable table.
+
 ## Updating
 
 ```bash
