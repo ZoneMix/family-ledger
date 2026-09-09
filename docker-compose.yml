@@ -1,6 +1,6 @@
 services:
   actual-server:
-    image: actualbudget/actual-server:26.7.0
+    image: actualbudget/actual-server:26.9.0
     container_name: actual-server
     restart: unless-stopped
     ports:
