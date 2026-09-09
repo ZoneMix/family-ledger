@@ -36,6 +36,36 @@
   --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Self-hosted fonts — no external requests. Sourced from Google Fonts'
+   own woff2 builds (latin subset only), bundled under public/fonts/
+   with their SIL Open Font License texts. font-optical-sizing is left
+   at its default; every rule that uses "opsz" sets it explicitly via
+   font-variation-settings below, so a blanket override here would just
+   fight those. */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 400 900;
+  src: url('/fonts/fraunces-variable.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 400 900;
+  src: url('/fonts/fraunces-italic-variable.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 400 700;
+  src: url('/fonts/figtree-variable.woff2') format('woff2');
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {

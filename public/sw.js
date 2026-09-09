@@ -1,5 +1,5 @@
 /* Service worker for The Family Ledger */
-const CACHE = 'family-ledger-v1';
+const CACHE = 'family-ledger-v2';
 const PRECACHE = [
   '/icons/icon.svg',
   '/manifest.json',

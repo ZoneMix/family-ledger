@@ -159,6 +159,8 @@ Either way, **copy `backups/` somewhere off this machine** — a backup that liv
 
 Built on top of [Actual Budget](https://actualbudget.org), an excellent open-source budgeting app. This project is **not affiliated with or endorsed by** the Actual Budget team — it's an independent dashboard that talks to Actual's API.
 
+Typeset in [Fraunces](https://github.com/undercasetype/Fraunces) (Undercase Type) and [Figtree](https://github.com/erikdkennedy/figtree) (Erik D. Kennedy), both licensed under the SIL Open Font License 1.1 — license files bundled in `public/fonts/`.
+
 ## Using with Claude Code
 
 This project includes a `CLAUDE.md` that gives Claude Code full architectural context — the module map, the `/api/budget` payload shape, and the cents-vs-dollars convention.
