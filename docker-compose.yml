@@ -40,6 +40,13 @@ services:
         required: false
     environment:
       ACTUAL_SERVER_URL: http://actual-server:5006
+    # Every secret (ACTUAL_PASSWORD, DASHBOARD_PASSWORD, ACTUAL_FILE_PASSWORD)
+    # also accepts a <NAME>_FILE path instead of the value itself, so it can
+    # be sourced from a Docker secret rather than .env — uncomment both
+    # blocks below and the top-level `secrets:` block to use it:
+    # secrets: [actual_password]
+    # environment:
+    #   ACTUAL_PASSWORD_FILE: /run/secrets/actual_password
     networks:
       - family-ledger
     logging:
@@ -51,3 +58,7 @@ services:
 networks:
   family-ledger:
     driver: bridge
+
+# secrets:
+#   actual_password:
+#     file: ./secrets/actual_password

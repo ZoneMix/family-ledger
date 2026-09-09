@@ -359,7 +359,9 @@ async function main() {
     serverURL: process.env.ACTUAL_SERVER_URL,
     password: process.env.ACTUAL_PASSWORD,
   });
-  await api.downloadBudget(process.env.ACTUAL_SYNC_ID);
+  // Seed data is never encrypted by default — only pass a password through
+  // when the target budget actually has one set.
+  await api.downloadBudget(process.env.ACTUAL_SYNC_ID, process.env.ACTUAL_FILE_PASSWORD ? { password: process.env.ACTUAL_FILE_PASSWORD } : undefined);
 
   if (!(await ensureFreshBudget(FORCE))) {
     await api.shutdown();

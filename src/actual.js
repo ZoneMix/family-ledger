@@ -11,7 +11,7 @@ export async function initActual(config) {
     serverURL: config.actualServerUrl,
     password: config.actualPassword,
   });
-  await api.downloadBudget(config.actualSyncId);
+  await api.downloadBudget(config.actualSyncId, config.actualFilePassword ? { password: config.actualFilePassword } : undefined);
 }
 
 export async function shutdownActual() {

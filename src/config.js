@@ -100,9 +100,38 @@ function checkDashboardPasswordLength(password) {
   }
 }
 
+// Every secret-shaped env var also accepts a NAME_FILE path (the Docker
+// secrets convention) — the direct env var wins if both are set, so a
+// stray exported var in the shell can't be silently shadowed by a stale
+// secrets file. Returns null when neither is set; exits (same style as
+// requireEnv) when NAME_FILE points at a file that can't be read.
+function readSecret(name) {
+  const direct = process.env[name];
+  if (direct) return direct;
+  const file = process.env[name + '_FILE'];
+  if (!file) return null;
+  try {
+    return fs.readFileSync(file, 'utf8').trim() || null;
+  } catch (err) {
+    console.error(`Cannot read ${name}_FILE (${file}): ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// Same fail-fast contract as requireEnv, but resolves through readSecret
+// first so the _FILE variant satisfies the requirement too.
+function requireSecret(name, hint) {
+  const value = readSecret(name);
+  if (!value) {
+    console.error(`Missing ${name} (or ${name}_FILE) — ${hint}`);
+    process.exit(1);
+  }
+  return value;
+}
+
 export function loadConfig() {
   const setupHint = 'run ./setup.sh or edit .env';
-  const actualPassword = requireEnv('ACTUAL_PASSWORD', setupHint);
+  const actualPassword = requireSecret('ACTUAL_PASSWORD', setupHint);
   const actualSyncId = requireEnv('ACTUAL_SYNC_ID', setupHint);
 
   let refreshIntervalMs = parseIntEnv('REFRESH_INTERVAL_MS', DEFAULT_REFRESH_MS);
@@ -111,7 +140,7 @@ export function loadConfig() {
     refreshIntervalMs = MIN_REFRESH_MS;
   }
 
-  const dashboardPassword = process.env.DASHBOARD_PASSWORD || null;
+  const dashboardPassword = readSecret('DASHBOARD_PASSWORD');
   checkDashboardPasswordLength(dashboardPassword);
 
   return {
@@ -122,6 +151,7 @@ export function loadConfig() {
     actualDataDir: process.env.ACTUAL_DATA_DIR || DEFAULT_ACTUAL_DATA_DIR,
     actualServerUrl: process.env.ACTUAL_SERVER_URL,
     actualPassword,
+    actualFilePassword: readSecret('ACTUAL_FILE_PASSWORD'),
     actualSyncId,
     stateDir: process.env.STATE_DIR || DEFAULT_STATE_DIR,
     appTitle: process.env.APP_TITLE || DEFAULT_APP_TITLE,

@@ -10,6 +10,7 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 |---|---|---|---|
 | `ACTUAL_PASSWORD` | Yes | — | Password for your Actual Budget server. |
 | `ACTUAL_SYNC_ID` | Yes | — | The Sync ID (a UUID) of the specific budget file the dashboard should read. Find it in Actual: gear icon → Settings → Show advanced settings → Sync ID. |
+| `ACTUAL_FILE_PASSWORD` | No | — | Password of an end-to-end-encrypted budget file. Leave unset for unencrypted files. |
 | `APP_TITLE` | No | `The Family Ledger` | Shown in the header, browser tab, and PWA install name. |
 | `TZ` | No | `America/Chicago` | IANA timezone (e.g. `America/New_York`, `Europe/London`) — used for "today" and month-boundary calculations. |
 | `DASHBOARD_PORT` | No | `3100` | **Host** port the dashboard is published on (Docker only — see `docker-compose.yml`). |
@@ -24,6 +25,10 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 | `TRUST_PROXY` | No | `loopback, linklocal, uniquelocal` | Which upstream addresses may set `X-Forwarded-*` headers. Private ranges by default, so a reverse proxy on the LAN or in the compose network is trusted, but internet clients can't spoof the login rate limiter's IP. |
 
 A few more variables exist for advanced/internal use and are set automatically inside the Docker containers — you generally never need to touch them: `PORT` (internal container port, `3000`), `ACTUAL_DATA_DIR` (`/cache`), `ACTUAL_SERVER_URL` (points at the `actual-server` container), `STATE_DIR` (`/state`, where net worth snapshot history lives).
+
+### Secret files
+
+Every secret variable — `ACTUAL_PASSWORD`, `DASHBOARD_PASSWORD`, and `ACTUAL_FILE_PASSWORD` — also accepts a `<NAME>_FILE` path instead of the value itself (e.g. `ACTUAL_PASSWORD_FILE=/run/secrets/actual_password`), the Docker secrets convention. The direct variable wins if both are set. See the commented-out example in `docker-compose.yml`.
 
 ### `DASHBOARD_PASSWORD` behavior
 

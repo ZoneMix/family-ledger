@@ -135,6 +135,8 @@ Tars up your Actual data and dashboard state into `backups/`, keeping the newest
 
 **Is it private?** Yes. Everything runs on your own hardware, talks only to your own Actual server, and there's no telemetry or external calls of any kind. Your financial data never leaves your network unless you choose to expose it (Tailscale keeps it private even then; a public domain via the Caddy overlay is your call to make). Your `.env` file holds your Actual server password and is created owner-read-only (permissions `600`) by `setup.sh`.
 
+**Can I use Actual's end-to-end encryption?** Yes — set `ACTUAL_FILE_PASSWORD` (or `ACTUAL_FILE_PASSWORD_FILE`) in `.env` to the encryption password you chose in Actual. See [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
 **What if the project dies / stops being maintained?** Your actual financial data lives in Actual Budget, not in this dashboard — this project only reads and lightly edits it through Actual's API. You can export your full budget anytime from Actual itself (gear icon → Settings → Export budget) as a portable file, independent of whether this dashboard exists at all.
 
 ## Credits

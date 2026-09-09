@@ -64,6 +64,9 @@ async function main() {
 const FATAL_RETRY_DELAY_MS = 30000;
 
 function startupHint(message) {
+  if (/encrypt|decrypt|invalid.?key|wrong.?password.*file/i.test(message)) {
+    return 'This budget file is end-to-end encrypted. Set ACTUAL_FILE_PASSWORD (or ACTUAL_FILE_PASSWORD_FILE) in .env to the encryption password you chose in Actual.';
+  }
   if (/not found/i.test(message) && /budget/i.test(message)) {
     return 'Check ACTUAL_SYNC_ID in .env — it must be the "Sync ID" from Actual\'s Settings → Show advanced settings (not the Budget ID).';
   }
