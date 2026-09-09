@@ -8,12 +8,16 @@
 # every so often — that produces a portable .zip independent of this
 # script.
 set -o errexit
+# So a failure partway through a pipe (tar | age, in particular) is
+# reported through the failing command's own exit status instead of
+# being masked by whatever runs after it succeeding on truncated input.
+set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 BACKUP_DIR="$SCRIPT_DIR/backups"
-KEEP=14
+KEEP="${KEEP:-14}"   # override with KEEP=N ./backup.sh to keep more/fewer
 STAMP="$(date +%Y%m%d-%H%M)"
 ARCHIVE="$BACKUP_DIR/family-ledger-${STAMP}.tar.gz"
 
@@ -32,17 +36,39 @@ fi
 
 # Stop Actual for a consistent snapshot --------------------------------
 # actual-data holds a live SQLite database; pausing the server for the
-# few seconds tar needs avoids reading it mid-write. The dashboard
-# container (if running) keeps serving its in-memory cache while
-# Actual is down — its own refresh/sync log lines will show connection
-# errors for those few seconds, which is expected and harmless. The
-# trap restarts Actual on EXIT (normal completion, a verification
-# failure, or Ctrl-C alike) so it never stays down because of this
-# script.
-if command -v docker >/dev/null 2>&1 && docker compose stop actual-server >/dev/null 2>&1; then
-  trap 'docker compose start actual-server >/dev/null 2>&1 || true' EXIT
+# few seconds tar needs avoids reading it mid-write. Actual is only
+# stopped if it was actually running under docker compose — a plain
+# `docker compose stop` is a no-op on an already-stopped container, but
+# unconditionally "starting" it back up afterward would undo a household
+# member deliberately taking it down (e.g. during maintenance), every
+# time cron fires this script. The trap only restarts Actual if THIS
+# run is the one that stopped it, and fires on any EXIT (normal
+# completion, a verification failure, or Ctrl-C alike) so it never
+# stays down because of this script. The dashboard container (if
+# running) keeps serving its in-memory cache while Actual is paused —
+# its own refresh/sync log lines will show connection errors for those
+# few seconds, which is expected and harmless.
+ACTUAL_WAS_RUNNING=0
+if command -v docker >/dev/null 2>&1; then
+  RUNNING_SERVICES="$(docker compose ps --status running --services 2>/dev/null)" && DOCKER_QUERY_OK=1 || DOCKER_QUERY_OK=0
 else
-  echo "WARNING: couldn't stop actual-server (docker compose unavailable, or the container isn't running) — this backup is a snapshot of a LIVE database."
+  DOCKER_QUERY_OK=0
+fi
+if [ "$DOCKER_QUERY_OK" = 1 ] && printf '%s\n' "$RUNNING_SERVICES" | grep -qx actual-server; then
+  ACTUAL_WAS_RUNNING=1
+fi
+
+if [ "$ACTUAL_WAS_RUNNING" = 1 ]; then
+  if docker compose stop actual-server >/dev/null 2>&1; then
+    trap 'docker compose start actual-server >/dev/null 2>&1 || true' EXIT
+    echo "Paused actual-server for a consistent snapshot (will restart it before this script exits)."
+  else
+    echo "WARNING: actual-server is running but couldn't be stopped — this backup is a snapshot of a LIVE database."
+  fi
+elif [ "$DOCKER_QUERY_OK" = 1 ]; then
+  echo "actual-server isn't running — nothing to pause; backing up its data as it sits on disk."
+else
+  echo "WARNING: couldn't check actual-server's state (docker compose unavailable) — this backup may be a snapshot of a LIVE database."
 fi
 
 # Optional age encryption ------------------------------------------------
@@ -63,8 +89,16 @@ fi
 echo "Backing up ${TAR_TARGETS[*]} ..."
 if [ -n "$BACKUP_AGE_RECIPIENT" ]; then
   FINAL_ARCHIVE="$ARCHIVE.age"
-  # Streamed straight into age — never touches disk unencrypted.
-  tar -czf - "${TAR_TARGETS[@]}" 2>/dev/null | age -r "$BACKUP_AGE_RECIPIENT" > "$FINAL_ARCHIVE"
+  # Streamed straight into age — never touches disk unencrypted. With
+  # pipefail (set above), a tar failure here fails this whole pipeline
+  # even though age itself still "succeeds" encrypting whatever partial
+  # (or empty) input it got — so we still need to clean up the file the
+  # redirect already created before reporting the failure.
+  if ! tar -czf - "${TAR_TARGETS[@]}" 2>/dev/null | age -r "$BACKUP_AGE_RECIPIENT" > "$FINAL_ARCHIVE"; then
+    rm -f "$FINAL_ARCHIVE"
+    echo "Backup failed — could not create $FINAL_ARCHIVE."
+    exit 1
+  fi
 else
   FINAL_ARCHIVE="$ARCHIVE"
   # --warning=no-file-changed quiets GNU tar's noise about files changing

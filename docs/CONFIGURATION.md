@@ -27,6 +27,8 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 
 A few more variables exist for advanced/internal use and are set automatically inside the Docker containers — you generally never need to touch them: `PORT` (internal container port, `3000`), `ACTUAL_DATA_DIR` (`/cache`), `ACTUAL_SERVER_URL` (points at the `actual-server` container), `STATE_DIR` (`/state`, where net worth snapshot history lives).
 
+`backup.sh` (run on the host, not inside a container) also reads `KEEP` from the shell environment — not `.env` — to override how many backups it keeps: `KEEP=30 ./backup.sh` keeps the newest 30 instead of the default 14.
+
 ### Secret files
 
 Every secret variable — `ACTUAL_PASSWORD`, `DASHBOARD_PASSWORD`, and `ACTUAL_FILE_PASSWORD` — also accepts a `<NAME>_FILE` path instead of the value itself (e.g. `ACTUAL_PASSWORD_FILE=/run/secrets/actual_password`), the Docker secrets convention. The direct variable wins if both are set. See the commented-out example in `docker-compose.yml`.

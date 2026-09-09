@@ -122,7 +122,7 @@ Either way, you can also restrict which network interface the dashboard binds to
 ./backup.sh
 ```
 
-Tars up your Actual data and dashboard state into `backups/`, keeping the newest 14. It briefly stops the `actual-server` container for a consistent snapshot — the dashboard keeps running off its cache in the meantime, so you'll see a few seconds of sync errors in its logs, which is normal — and restarts Actual automatically afterward, even if the backup itself fails. Every archive is verified before the script reports success; one that fails to read is deleted and the script exits with an error rather than leaving a silently-corrupt backup in `backups/`.
+Tars up your Actual data and dashboard state into `backups/`, keeping the newest 14 (override with `KEEP=N ./backup.sh` for a different count). If `actual-server` is running, it's briefly stopped for a consistent snapshot — the dashboard keeps running off its cache in the meantime, so you'll see a few seconds of sync errors in its logs, which is normal — and restarted automatically afterward, even if the backup itself fails. If you've deliberately taken Actual down yourself, the script leaves it down; it only restarts what it stopped. Every archive is verified before the script reports success; one that fails to read is deleted and the script exits with an error rather than leaving a silently-corrupt backup in `backups/`.
 
 Say yes to the daily 3am cron job during `./setup.sh` and this happens automatically.
 
