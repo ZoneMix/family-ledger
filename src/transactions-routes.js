@@ -86,14 +86,18 @@ export function createTransactionsRouter({ config, refreshEngine, log }) {
     }
 
     try {
-      // @actual-app/api 26.x cannot convert an existing transaction into a
-      // split via updateTransaction (it silently orphans the children).
-      // The reliable path is delete + re-create as a split via
-      // addTransactions, preserving imported_id so a bank-synced
-      // transaction is not re-imported as a duplicate. (Verified on 26.5.2.)
+      // @actual-app/api 26.0-26.7 couldn't convert an existing transaction
+      // into a split via updateTransaction (it silently orphaned the
+      // children); upstream fixed this in 26.8.0 (actualbudget/actual PR
+      // #8467, "Fix updateTransaction crash when converting a transaction
+      // to a split"). Re-tested directly against 26.9.0 on 2026-09-09 —
+      // updateTransaction now correctly produces one parent + N children,
+      // preserves imported_id/payee/date/cleared, and survives sync() and
+      // a fresh downloadBudget — so the native path replaces the old
+      // delete + addTransactions workaround this comment used to describe.
       const q = api.q('transactions')
         .filter({ id })
-        .select(['id', 'account', 'date', 'amount', 'payee', 'imported_id', 'cleared', 'notes', 'is_parent'])
+        .select(['id', 'amount', 'is_parent'])
         .limit(1);
       const parentResult = await api.runQuery(q);
       const parent = parentResult.data && parentResult.data[0];
@@ -113,33 +117,13 @@ export function createTransactionsRouter({ config, refreshEngine, log }) {
         });
       }
 
-      // Preserve the parent's identity fields so the rebuilt txn still
-      // matches bank-sync dedup.
-      const base = {
-        date: parent.date,
-        amount: parent.amount,
-        payee: parent.payee || undefined,
-        cleared: !!parent.cleared,
-        imported_id: parent.imported_id || undefined,
-        notes: parent.notes || undefined,
-      };
-      const splitTxn = {
-        ...base,
+      await api.updateTransaction(id, {
         subtransactions: splits.map(s => ({
           amount: s.amount,
           category: s.category || null,
           notes: (s.notes || '').slice(0, 200) || null,
         })),
-      };
-
-      await api.deleteTransaction(id);
-      try {
-        await api.addTransactions(parent.account, [splitTxn]);
-      } catch (addErr) {
-        // Recovery: re-create the original single transaction so nothing is lost.
-        await api.addTransactions(parent.account, [base]).catch(() => {});
-        throw addErr;
-      }
+      });
       await api.sync(); // awaited — surface failures rather than swallow them
 
       log(`split transaction ${id} into ${splits.length} parts`);
