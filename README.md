@@ -122,7 +122,23 @@ Either way, you can also restrict which network interface the dashboard binds to
 ./backup.sh
 ```
 
-Tars up your Actual data and dashboard state into `backups/`, keeping the newest 14. Say yes to the daily 3am cron job during `./setup.sh` and this happens automatically. For extra safety, also use Actual's own built-in "Export budget" (gear icon → Settings) now and then — it produces a portable `.zip` independent of this project entirely.
+Tars up your Actual data and dashboard state into `backups/`, keeping the newest 14. It briefly stops the `actual-server` container for a consistent snapshot — the dashboard keeps running off its cache in the meantime, so you'll see a few seconds of sync errors in its logs, which is normal — and restarts Actual automatically afterward, even if the backup itself fails. Every archive is verified before the script reports success; one that fails to read is deleted and the script exits with an error rather than leaving a silently-corrupt backup in `backups/`.
+
+Say yes to the daily 3am cron job during `./setup.sh` and this happens automatically.
+
+**Encrypt backups at rest:** set `BACKUP_AGE_RECIPIENT` in `.env` to an [age](https://github.com/FiloSottile/age) public key and `backup.sh` writes `family-ledger-<timestamp>.tar.gz.age` instead of a plain tarball. Generate a keypair with:
+
+```bash
+age-keygen -o key.txt   # prints the public key (age1...) — put that in BACKUP_AGE_RECIPIENT; keep key.txt somewhere safe and offline
+```
+
+Restore an encrypted backup with:
+
+```bash
+age -d -i key.txt family-ledger-<timestamp>.tar.gz.age | tar -xz
+```
+
+Either way, **copy `backups/` somewhere off this machine** — a backup that lives on the same disk as the thing it's backing up won't survive a dead disk. For extra safety, also use Actual's own built-in "Export budget" (gear icon → Settings) now and then — it produces a portable `.zip` independent of this project entirely.
 
 ## Troubleshooting
 

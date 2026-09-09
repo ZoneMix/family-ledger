@@ -31,7 +31,7 @@ As of 26.9.0, Actual's server container images moved to Node 24 (32-bit ARM user
    ./backup.sh
    ```
 
-   This tars `actual-data/` (Actual's server-side budget data) and `state/` (this dashboard's net worth snapshot history) into `backups/family-ledger-<timestamp>.tar.gz`.
+   This briefly pauses `actual-server` for a consistent snapshot (restarted automatically afterward, even on failure) and tars `actual-data/` (Actual's server-side budget data) and `state/` (this dashboard's net worth snapshot history) into `backups/family-ledger-<timestamp>.tar.gz` — or `.tar.gz.age` if `BACKUP_AGE_RECIPIENT` is set, see [README.md](../README.md#backups).
 
 2. **Pull the new version.** If you're tracking releases:
 

@@ -23,6 +23,7 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 | `READ_ONLY` | No | (unset — read-write) | Set to `true` to make the dashboard a viewer: bank sync (automatic and the footer button), recategorizing, and splitting are disabled and the API returns 403 for those routes. `POST /api/refresh` still works. |
 | `BIND_ADDR` | No | `0.0.0.0` | Host network interface the published ports bind to (Docker only — see `docker-compose.yml`). Default publishes on every interface; set to `127.0.0.1` when a reverse proxy fronts the stack, or a Tailscale IP to expose it on the tailnet only. |
 | `TRUST_PROXY` | No | `loopback, linklocal, uniquelocal` | Which upstream addresses may set `X-Forwarded-*` headers. Private ranges by default, so a reverse proxy on the LAN or in the compose network is trusted, but internet clients can't spoof the login rate limiter's IP. |
+| `BACKUP_AGE_RECIPIENT` | No | — | Public key (`age1...`) from an [age](https://github.com/FiloSottile/age) keypair. When set, `backup.sh` encrypts backups and writes `family-ledger-<timestamp>.tar.gz.age` instead of a plain tarball. |
 
 A few more variables exist for advanced/internal use and are set automatically inside the Docker containers — you generally never need to touch them: `PORT` (internal container port, `3000`), `ACTUAL_DATA_DIR` (`/cache`), `ACTUAL_SERVER_URL` (points at the `actual-server` container), `STATE_DIR` (`/state`, where net worth snapshot history lives).
 
