@@ -16,6 +16,8 @@
 # If you're only accessing The Family Ledger from inside your home
 # network, you almost certainly don't need this file at all — just
 # open http://<this-machine's-LAN-IP>:3100 instead. See README.md.
+#
+# Recommended alongside this overlay: set BIND_ADDR=127.0.0.1 in .env, since Caddy reaches the containers over the compose network.
 
 ledger.example.com {
     reverse_proxy dashboard:3000

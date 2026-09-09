@@ -14,6 +14,12 @@ const log = (...args) => console.log(new Date().toISOString(), ...args);
 async function main() {
   const config = loadConfig();
 
+  if (!config.dashboardPassword) {
+    console.warn('WARNING: DASHBOARD_PASSWORD is not set — anyone who can reach this port can view AND edit the budget.');
+    console.warn('Set DASHBOARD_PASSWORD in .env (12+ characters) and restart. Fine for a trusted home LAN; not fine otherwise.');
+    console.warn('(READ_ONLY=true limits the damage but does not add authentication.)');
+  }
+
   log('initializing @actual-app/api');
   await initActual(config);
   log('budget ready');

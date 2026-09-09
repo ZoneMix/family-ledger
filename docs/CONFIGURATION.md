@@ -18,16 +18,19 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 | `LOCALE` | No | `en-US` | Locale used for number/date formatting. |
 | `REFRESH_INTERVAL_MS` | No | `300000` (5 min) | How often the server re-reads budget data from Actual. Floored at `60000` (1 min) — anything lower is silently raised to the floor. |
 | `AUTO_SYNC_INTERVAL_MS` | No | `7200000` (2 hr) | How often the server asks Actual to run a bank sync. Set to `0` to disable automatic bank sync entirely (manual sync via the footer button still works). |
-| `DASHBOARD_PASSWORD` | No | *(none — login disabled)* | Optional password gate on the dashboard itself. See below. |
+| `DASHBOARD_PASSWORD` | No | *(none — login disabled)* | Optional password gate on the dashboard itself. Must be 12+ characters if set — the server refuses to start otherwise. See below. |
 | `READ_ONLY` | No | (unset — read-write) | Set to `true` to make the dashboard a viewer: bank sync (automatic and the footer button), recategorizing, and splitting are disabled and the API returns 403 for those routes. `POST /api/refresh` still works. |
+| `BIND_ADDR` | No | `0.0.0.0` | Host network interface the published ports bind to (Docker only — see `docker-compose.yml`). Default publishes on every interface; set to `127.0.0.1` when a reverse proxy fronts the stack, or a Tailscale IP to expose it on the tailnet only. |
+| `TRUST_PROXY` | No | `loopback, linklocal, uniquelocal` | Which upstream addresses may set `X-Forwarded-*` headers. Private ranges by default, so a reverse proxy on the LAN or in the compose network is trusted, but internet clients can't spoof the login rate limiter's IP. |
 
 A few more variables exist for advanced/internal use and are set automatically inside the Docker containers — you generally never need to touch them: `PORT` (internal container port, `3000`), `ACTUAL_DATA_DIR` (`/cache`), `ACTUAL_SERVER_URL` (points at the `actual-server` container), `STATE_DIR` (`/state`, where net worth snapshot history lives).
 
 ### `DASHBOARD_PASSWORD` behavior
 
-- Leave it empty for no login — appropriate for a trusted home network where Actual's own server password is already the real gate.
-- When set, every page and every `/api/*` route (except `/login.html`, `/api/login`, and `/api/health`) requires a valid session cookie.
+- Leave it empty for no login — appropriate for a trusted home network where Actual's own server password is already the real gate. The server logs a startup warning when this is the case.
+- When set, every page and every `/api/*` route (except `/login.html`, `/api/login`, and `/api/health`) requires a valid session cookie. `/api/health` stays open but only ever returns `{"ok":true|false}` — nothing else is exposed unauthenticated.
 - The session cookie (`fl_session`) is a deterministic HMAC of a fixed message keyed by the password — there's no session store on disk. It's valid for **30 days**.
+- The session cookie is marked `Secure` automatically when the dashboard is reached over HTTPS (Caddy overlay, Tailscale Serve); over plain HTTP on the LAN it is not, by design.
 - **Changing `DASHBOARD_PASSWORD` invalidates every existing session immediately** (the HMAC no longer matches), which effectively logs everyone out at once. Useful if a shared device is lost or a household member should lose access.
 - Login attempts are rate-limited to 5 per minute per IP.
 

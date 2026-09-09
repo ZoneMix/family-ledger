@@ -4,7 +4,7 @@ services:
     container_name: actual-server
     restart: unless-stopped
     ports:
-      - "${ACTUAL_PORT:-5006}:5006"
+      - "${BIND_ADDR:-0.0.0.0}:${ACTUAL_PORT:-5006}:5006"
     volumes:
       - ./actual-data:/data
     networks:
@@ -22,8 +22,11 @@ services:
     restart: unless-stopped
     depends_on:
       - actual-server
+    # Default publishes on every interface (LAN-first). Set BIND_ADDR=127.0.0.1
+    # in .env when Caddy fronts the stack, or a Tailscale IP (100.x.y.z) to
+    # expose it on the tailnet only.
     ports:
-      - "${DASHBOARD_PORT:-3100}:3000"
+      - "${BIND_ADDR:-0.0.0.0}:${DASHBOARD_PORT:-3100}:3000"
     volumes:
       - ./cache:/cache
       - ./state:/state

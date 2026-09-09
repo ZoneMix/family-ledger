@@ -21,6 +21,8 @@ const DEFAULT_APP_TITLE = 'The Family Ledger';
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_HIDDEN_PAYEES = ['Starting Balance'];
+const DEFAULT_TRUST_PROXY = 'loopback, linklocal, uniquelocal';
+const MIN_DASHBOARD_PASSWORD_LENGTH = 12;
 
 // Reads a JSON file from the app root. Missing file → null (silently, this
 // is the expected steady state for every optional config). Malformed JSON
@@ -78,6 +80,26 @@ function parseIntEnv(name, fallback) {
   return parsed;
 }
 
+// Express's `trust proxy` setting accepts the comma-separated subnet-list
+// string form directly, but the literal strings "true"/"false" need to
+// become real booleans — trusting every proxy (true) or none (false) is
+// meaningfully different from Express's perspective than the string "true".
+function parseTrustProxy(raw) {
+  if (raw === 'false') return false;
+  if (raw === 'true') return true;
+  return raw;
+}
+
+// Fails fast (same style as requireEnv) if a dashboard password is set but
+// too short to be worth anything — a 3-character "password" gives a false
+// sense of protection.
+function checkDashboardPasswordLength(password) {
+  if (password && password.length < MIN_DASHBOARD_PASSWORD_LENGTH) {
+    console.error(`DASHBOARD_PASSWORD is set but shorter than ${MIN_DASHBOARD_PASSWORD_LENGTH} characters — pick a longer password (or unset it to disable login).`);
+    process.exit(1);
+  }
+}
+
 export function loadConfig() {
   const setupHint = 'run ./setup.sh or edit .env';
   const actualPassword = requireEnv('ACTUAL_PASSWORD', setupHint);
@@ -88,6 +110,9 @@ export function loadConfig() {
     console.warn(`[config] REFRESH_INTERVAL_MS ${refreshIntervalMs} is below the ${MIN_REFRESH_MS}ms sanity floor — using the floor`);
     refreshIntervalMs = MIN_REFRESH_MS;
   }
+
+  const dashboardPassword = process.env.DASHBOARD_PASSWORD || null;
+  checkDashboardPasswordLength(dashboardPassword);
 
   return {
     port: parseIntEnv('PORT', DEFAULT_PORT),
@@ -102,7 +127,8 @@ export function loadConfig() {
     appTitle: process.env.APP_TITLE || DEFAULT_APP_TITLE,
     currency: process.env.CURRENCY || DEFAULT_CURRENCY,
     locale: process.env.LOCALE || DEFAULT_LOCALE,
-    dashboardPassword: process.env.DASHBOARD_PASSWORD || null,
+    dashboardPassword,
+    trustProxy: parseTrustProxy(process.env.TRUST_PROXY || DEFAULT_TRUST_PROXY),
     readOnly: process.env.READ_ONLY === 'true',
     app: loadAppConfig(),
     goals: loadGoalsConfig(),

@@ -105,6 +105,8 @@ docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
 
 See [docs/CONFIGURATION.md](docs/CONFIGURATION.md#away-from-home-the-caddy-overlay) for the setup steps.
 
+Either way, you can also restrict which network interface the dashboard binds to by setting `BIND_ADDR` in `.env` — e.g. `BIND_ADDR=127.0.0.1` when Caddy fronts the stack, or `BIND_ADDR=100.x.y.z` (your Tailscale IP) to expose it on the tailnet only, instead of every interface.
+
 ## Updating
 
 ```bash
@@ -131,7 +133,7 @@ Tars up your Actual data and dashboard state into `backups/`, keeping the newest
 
 ## FAQ
 
-**Is it private?** Yes. Everything runs on your own hardware, talks only to your own Actual server, and there's no telemetry or external calls of any kind. Your financial data never leaves your network unless you choose to expose it (Tailscale keeps it private even then; a public domain via the Caddy overlay is your call to make).
+**Is it private?** Yes. Everything runs on your own hardware, talks only to your own Actual server, and there's no telemetry or external calls of any kind. Your financial data never leaves your network unless you choose to expose it (Tailscale keeps it private even then; a public domain via the Caddy overlay is your call to make). Your `.env` file holds your Actual server password and is created owner-read-only (permissions `600`) by `setup.sh`.
 
 **What if the project dies / stops being maintained?** Your actual financial data lives in Actual Budget, not in this dashboard — this project only reads and lightly edits it through Actual's API. You can export your full budget anytime from Actual itself (gear icon → Settings → Export budget) as a portable file, independent of whether this dashboard exists at all.
 

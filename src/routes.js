@@ -36,7 +36,18 @@ function buildManifest(config) {
 export function createApp({ config, refreshEngine, bankSyncEngine, log }) {
   const app = express();
   app.disable('x-powered-by');
+  // config.trustProxy defaults to private-range subnets only, so a reverse
+  // proxy on the LAN or in the compose network is trusted to set
+  // X-Forwarded-* (needed for req.secure below), but an internet client
+  // can't spoof its way past the login rate limiter with a fake header.
+  app.set('trust proxy', config.trustProxy);
   app.use(express.json({ limit: '16kb' }));
+  // Every /api/* response carries live budget data — never let a browser,
+  // proxy, or shared device cache it. Registered before any /api route.
+  app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'private, no-store');
+    next();
+  });
   app.use(createAuthGate(config));
 
   const isRateLimited = createLoginLimiter();
@@ -78,6 +89,11 @@ export function createApp({ config, refreshEngine, bankSyncEngine, log }) {
       sameSite: 'lax',
       path: '/',
       maxAge: SESSION_MAX_AGE_MS,
+      // req.secure is true for a direct HTTPS connection, or plain HTTP
+      // relayed through a proxy in config.trustProxy that sets
+      // X-Forwarded-Proto: https. Plain-HTTP LAN logins keep working —
+      // they just don't get the Secure attribute.
+      secure: req.secure,
     });
     res.status(204).end();
   });
@@ -87,20 +103,16 @@ export function createApp({ config, refreshEngine, bankSyncEngine, log }) {
     if (!cache) {
       return res.status(503).json({ error: 'warming up', lastError: refreshEngine.getLastError() });
     }
-    res.set('Cache-Control', 'public, max-age=60');
     res.json(cache);
   });
 
+  // Deliberately minimal and always open (see auth.js ALWAYS_OPEN_PATHS) —
+  // a health check needs no auth, so it must never leak anything past a
+  // single boolean. Detailed status (bankSync, lastError, etc.) is on
+  // /api/budget instead, which sits behind the auth gate and cache-control
+  // middleware above.
   app.get('/api/health', (req, res) => {
-    const cache = refreshEngine.getCache();
-    res.json({
-      ok: !!cache,
-      refreshing: refreshEngine.isRefreshing(),
-      syncing: bankSyncEngine.isSyncing(),
-      updatedAt: cache?.updatedAt || null,
-      lastError: refreshEngine.getLastError(),
-      bankSync: refreshEngine.getBankSyncTelemetry(),
-    });
+    res.json({ ok: !!refreshEngine.getCache() });
   });
 
   // Manual refresh — forces an immediate pull from Actual, bypassing the

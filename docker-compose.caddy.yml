@@ -6,6 +6,8 @@
 # Usage:
 #   cp Caddyfile.example Caddyfile   # then edit the domains inside
 #   docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
+#
+# Recommended alongside this overlay: set BIND_ADDR=127.0.0.1 in .env, since Caddy reaches the containers over the compose network.
 
 services:
   caddy:
