@@ -24,7 +24,9 @@ async function main() {
   await refreshEngine.refresh();
   setInterval(() => refreshEngine.refresh(), config.refreshIntervalMs);
 
-  if (config.autoSyncIntervalMs > 0) {
+  log(config.readOnly ? 'mode: READ-ONLY (sync, recategorize, split disabled)' : 'mode: read-write');
+
+  if (config.autoSyncIntervalMs > 0 && !config.readOnly) {
     log(`auto bank sync interval: ${Math.round(config.autoSyncIntervalMs / 60000)} min`);
     setInterval(() => {
       bankSyncEngine.runBankSyncCycle().catch(err => log('auto sync cycle failed:', err.message));
@@ -34,6 +36,8 @@ async function main() {
     setTimeout(() => {
       bankSyncEngine.runBankSyncCycle().catch(err => log('initial bank sync failed:', err.message));
     }, 10000);
+  } else if (config.readOnly) {
+    log('auto bank sync disabled (READ_ONLY=true)');
   } else {
     log('auto bank sync disabled (AUTO_SYNC_INTERVAL_MS=0)');
   }

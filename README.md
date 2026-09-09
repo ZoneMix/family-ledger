@@ -89,6 +89,7 @@ Everything is set through environment variables in `.env` (written for you by `.
 | `DASHBOARD_PORT` / `ACTUAL_PORT` | No | Host ports (defaults: 3100 / 5006) |
 | `CURRENCY` / `LOCALE` | No | Number/date formatting |
 | `DASHBOARD_PASSWORD` | No | Optional login for the dashboard itself |
+| `READ_ONLY` | No | Set `true` to disable bank sync, recategorizing, and splitting |
 
 See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for the full variable table, the optional `config.json` / `goals.json` / `networth.json` files with copy-paste examples, and how the Caddy overlay works.
 

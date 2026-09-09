@@ -50,3 +50,10 @@ export function hiddenPayeeSet() {
   const fromServer = state.lastData && state.lastData.app && state.lastData.app.hiddenPayees;
   return new Set(Array.isArray(fromServer) && fromServer.length ? fromServer : ['Starting Balance']);
 }
+
+// True when the server is running with READ_ONLY=true — bank sync,
+// recategorizing, and splitting are disabled in the UI to match the
+// server-side 403s.
+export function isReadOnly() {
+  return !!(state.lastData && state.lastData.app && state.lastData.app.readOnly);
+}

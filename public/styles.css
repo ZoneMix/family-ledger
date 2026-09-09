@@ -1073,6 +1073,12 @@ button.section__eyebrow--toggle.is-expanded {
   -webkit-tap-highlight-color: rgba(184, 71, 46, 0.1);
 }
 
+/* Read-only variant — READ_ONLY=true renders a static label instead of
+   the editable overlay pill above, so it shouldn't look tappable. */
+.ledger__category-pill--readonly {
+  cursor: default;
+}
+
 .ledger__category-display {
   font-family: 'Fraunces', serif;
   font-variation-settings: "opsz" 14;
@@ -1466,6 +1472,12 @@ body.privacy-on .privacy-badge {
   cursor: help;
   border-bottom-color: var(--rule-dotted);
   font-style: italic;
+}
+
+/* Read-only variant — READ_ONLY=true disables tap-to-split, so the
+   dashed underline hint shouldn't imply the amount is interactive. */
+.ledger__amount--readonly {
+  cursor: default;
 }
 
 .ledger__entry--split .ledger__payee::after {

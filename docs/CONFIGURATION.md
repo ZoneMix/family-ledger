@@ -19,6 +19,7 @@ The Family Ledger is configured two ways: environment variables (`.env`, require
 | `REFRESH_INTERVAL_MS` | No | `300000` (5 min) | How often the server re-reads budget data from Actual. Floored at `60000` (1 min) — anything lower is silently raised to the floor. |
 | `AUTO_SYNC_INTERVAL_MS` | No | `7200000` (2 hr) | How often the server asks Actual to run a bank sync. Set to `0` to disable automatic bank sync entirely (manual sync via the footer button still works). |
 | `DASHBOARD_PASSWORD` | No | *(none — login disabled)* | Optional password gate on the dashboard itself. See below. |
+| `READ_ONLY` | No | (unset — read-write) | Set to `true` to make the dashboard a viewer: bank sync (automatic and the footer button), recategorizing, and splitting are disabled and the API returns 403 for those routes. `POST /api/refresh` still works. |
 
 A few more variables exist for advanced/internal use and are set automatically inside the Docker containers — you generally never need to touch them: `PORT` (internal container port, `3000`), `ACTUAL_DATA_DIR` (`/cache`), `ACTUAL_SERVER_URL` (points at the `actual-server` container), `STATE_DIR` (`/state`, where net worth snapshot history lives).
 

@@ -257,6 +257,8 @@ if [ "$NEED_FULL_SETUP" = "1" ]; then
     printf 'DASHBOARD_PORT=%s\n' "$DASHBOARD_PORT"
     printf 'ACTUAL_PORT=%s\n' "$ACTUAL_PORT"
     printf 'DASHBOARD_PASSWORD=%s\n' "$(env_quote "$DASHBOARD_PASSWORD")"
+    printf '%s\n' '# READ_ONLY=true makes the dashboard view-only (no bank sync, recategorize, or split)'
+    printf 'READ_ONLY=false\n'
   } > "$ENV_FILE"
 
   # Pre-create every bind-mounted directory as the current user. If they

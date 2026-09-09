@@ -103,6 +103,7 @@ export function loadConfig() {
     currency: process.env.CURRENCY || DEFAULT_CURRENCY,
     locale: process.env.LOCALE || DEFAULT_LOCALE,
     dashboardPassword: process.env.DASHBOARD_PASSWORD || null,
+    readOnly: process.env.READ_ONLY === 'true',
     app: loadAppConfig(),
     goals: loadGoalsConfig(),
     networth: loadNetworthConfig(),

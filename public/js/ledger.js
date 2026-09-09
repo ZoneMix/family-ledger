@@ -8,7 +8,7 @@ import {
   $, el, fmt, maskName, setText, showError, hideError,
   parseAmountToCents, MONTH_NAMES_SHORT,
 } from './util.js';
-import { state, hiddenPayeeSet } from './state.js';
+import { state, hiddenPayeeSet, isReadOnly } from './state.js';
 import { load, render } from './main.js';
 
 // ── Ledger entries ─────────────────────────────────────────
@@ -51,6 +51,10 @@ export function renderLedger(transactions, categoryOptions) {
     // including uncategorized rows (italic faded pill, same picker).
     if (t.isParent) {
       detail.appendChild(el('span', 'ledger__category-split', '↔ split across categories'));
+    } else if (isReadOnly()) {
+      const pillClass = 'ledger__category-pill ledger__category-pill--readonly'
+        + (!t.categoryId ? ' ledger__category-pill--uncategorized' : '');
+      detail.appendChild(el('span', pillClass, t.category || '— uncategorized —'));
     } else {
       detail.appendChild(buildCategorySelect(t, categoryOptions));
     }
@@ -61,6 +65,7 @@ export function renderLedger(transactions, categoryOptions) {
     amtBtn.type = 'button';
     amtBtn.className = 'ledger__amount';
     if (t.isParent) amtBtn.classList.add('ledger__amount--is-split');
+    if (isReadOnly()) amtBtn.classList.add('ledger__amount--readonly');
     const isPositive = (t.amount || 0) > 0;
     amtBtn.textContent = fmt(Math.abs(t.amount || 0));
     if (isPositive) amtBtn.classList.add('ledger__amount--positive');
@@ -75,6 +80,7 @@ export function renderLedger(transactions, categoryOptions) {
         setTimeout(hideError, 3500);
         return;
       }
+      if (isReadOnly()) return;
       openSplitModal(t, categoryOptions);
     });
     li.appendChild(amtBtn);

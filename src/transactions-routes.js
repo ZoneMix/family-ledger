@@ -5,6 +5,7 @@
 import express from 'express';
 import { api, getMonthTransactions } from './actual.js';
 import { currentMonth, mapTransaction } from './refresh.js';
+import { readOnlyGuard } from './read-only.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -40,7 +41,7 @@ export function createTransactionsRouter({ config, refreshEngine, log }) {
   // Category reassignment from the inline dropdown in the ledger. Only
   // `category` is mutable via this endpoint. UUID shape-checked so
   // obviously bad ids never reach the SDK layer.
-  router.patch('/api/transactions/:id', async (req, res) => {
+  router.patch('/api/transactions/:id', readOnlyGuard(config), async (req, res) => {
     const { id } = req.params;
     const { category } = req.body || {};
     if (!UUID_RE.test(id)) {
@@ -66,7 +67,7 @@ export function createTransactionsRouter({ config, refreshEngine, log }) {
   // Body: { splits: [{ category: "<uuid>|null", amount: <int cents>, notes: "..." }, ...] }
   // Rules: at least 2 splits, integer-cent amounts, sum must equal the
   // parent amount exactly, and the parent must not already be a split.
-  router.post('/api/transactions/:id/split', async (req, res) => {
+  router.post('/api/transactions/:id/split', readOnlyGuard(config), async (req, res) => {
     const { id } = req.params;
     const { splits } = req.body || {};
 

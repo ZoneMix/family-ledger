@@ -7,6 +7,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createAuthGate, createLoginLimiter, sessionToken, safeEqual, SESSION_COOKIE_NAME, SESSION_MAX_AGE_MS } from './auth.js';
+import { readOnlyGuard } from './read-only.js';
 import { createTransactionsRouter } from './transactions-routes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -120,7 +121,7 @@ export function createApp({ config, refreshEngine, bankSyncEngine, log }) {
     }
   });
 
-  app.post('/api/sync', async (req, res) => {
+  app.post('/api/sync', readOnlyGuard(config), async (req, res) => {
     const result = await bankSyncEngine.runBankSyncCycle();
     if (result.skipped) {
       return res.status(202).json({ status: 'already-syncing' });

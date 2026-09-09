@@ -8,7 +8,7 @@ import {
   showError, hideError, MONTH_NAMES_FULL, MONTH_NAMES_SHORT,
   REFRESH_MS, RETRY_MS,
 } from './util.js';
-import { state, isUserInteracting } from './state.js';
+import { state, isUserInteracting, isReadOnly } from './state.js';
 import {
   heroMessage, issueNumber, applySensitiveRevealed,
   renderGoals, renderAccounts, renderGroups, renderNetworth,
@@ -146,7 +146,12 @@ export function render(data) {
     hour12: true,
   }));
 
-  renderBankSyncStatus(data.bankSync);
+  if (data.app && data.app.readOnly) {
+    const syncBtn = $('#sync-button');
+    if (syncBtn) syncBtn.style.display = 'none';
+  } else {
+    renderBankSyncStatus(data.bankSync);
+  }
 }
 
 // ── Load cycle ─────────────────────────────────────────────
@@ -209,6 +214,7 @@ async function manualRefresh() {
 }
 
 async function manualBankSync() {
+  if (isReadOnly()) return;
   if (state.manualSyncing) return;
   state.manualSyncing = true;
   const btn = $('#sync-button');

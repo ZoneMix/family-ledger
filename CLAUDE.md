@@ -39,6 +39,7 @@ src/
   refresh.js                 # builds the cached /api/budget payload (the one big object the frontend polls)
   bank-sync.js                # periodic bank-connector sync, independent timer from refresh
   auth.js                     # optional DASHBOARD_PASSWORD cookie gate (HMAC token, no session store)
+  read-only.js                # optional READ_ONLY guard — 403s sync/recategorize/split routes
   routes.js                   # Express app: static PWA, manifest, login, /api/budget, /api/health, /api/refresh, /api/sync
   transactions-routes.js      # /api/transactions/month, inline category PATCH, transaction split
   networth.js                 # net worth snapshotting (state/networth-snapshots.json) + goal-card funding

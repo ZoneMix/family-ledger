@@ -221,6 +221,7 @@ export function createRefreshEngine({ config, log }) {
           locale: config.locale,
           baseSplitEnabled,
           hiddenPayees: config.app.hiddenPayees,
+          readOnly: !!config.readOnly,
         },
         totals,
         categoryGroups: visibleGroups,
