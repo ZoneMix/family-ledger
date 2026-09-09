@@ -140,14 +140,27 @@ echo "Wrote $FINAL_ARCHIVE"
 # (family-ledger-YYYYMMDD-HHMM.tar.gz[.age]), so a plain name sort works.
 # The glob covers both plain and age-encrypted archives.
 # while-read instead of mapfile: macOS ships bash 3.2, which lacks it.
+# No `head` in this pipeline: with pipefail (set above), a downstream
+# reader exiting early (like `head -n N`) after upstream `sort` still
+# has buffered output makes `sort` catch SIGPIPE, which counts as the
+# pipeline's own failure and would abort the script via errexit — after
+# the backup was already written and pruned correctly, so a cron run
+# would falsely report failure. Instead the while loop reads every
+# line to EOF (so nothing upstream ever gets SIGPIPE) and only acts on
+# the first $REMOVE_COUNT of them, via a counter.
 TOTAL="$(find "$BACKUP_DIR" -maxdepth 1 -name 'family-ledger-*.tar.gz*' | wc -l | tr -d ' ')"
 if [ "$TOTAL" -gt "$KEEP" ]; then
   REMOVE_COUNT=$((TOTAL - KEEP))
-  find "$BACKUP_DIR" -maxdepth 1 -name 'family-ledger-*.tar.gz*' | sort | head -n "$REMOVE_COUNT" \
-    | while IFS= read -r old; do
-        rm -f "$old"
-        echo "Removed old backup: $(basename "$old")"
-      done
+  find "$BACKUP_DIR" -maxdepth 1 -name 'family-ledger-*.tar.gz*' | sort \
+    | { PRUNE_INDEX=0
+        while IFS= read -r old; do
+          PRUNE_INDEX=$((PRUNE_INDEX + 1))
+          if [ "$PRUNE_INDEX" -le "$REMOVE_COUNT" ]; then
+            rm -f "$old"
+            echo "Removed old backup: $(basename "$old")"
+          fi
+        done
+      }
 fi
 
 KEPT="$(find "$BACKUP_DIR" -maxdepth 1 -name 'family-ledger-*.tar.gz*' | wc -l | tr -d ' ')"
