@@ -90,6 +90,15 @@ function parseTrustProxy(raw) {
   return raw;
 }
 
+// Small, reusable boolean-env parser: trims whitespace and matches
+// true/1/yes case-insensitively so `READ_ONLY=' TRUE '` (a stray space or
+// shell-quoting quirk) still works instead of silently defaulting to
+// false. Anything else — including unset — is false.
+function parseBooleanEnv(raw) {
+  const normalized = (raw || '').trim().toLowerCase();
+  return normalized === 'true' || normalized === '1' || normalized === 'yes';
+}
+
 // Fails fast (same style as requireEnv) if a dashboard password is set but
 // too short to be worth anything — a 3-character "password" gives a false
 // sense of protection.
@@ -159,7 +168,7 @@ export function loadConfig() {
     locale: process.env.LOCALE || DEFAULT_LOCALE,
     dashboardPassword,
     trustProxy: parseTrustProxy(process.env.TRUST_PROXY || DEFAULT_TRUST_PROXY),
-    readOnly: process.env.READ_ONLY === 'true',
+    readOnly: parseBooleanEnv(process.env.READ_ONLY),
     app: loadAppConfig(),
     goals: loadGoalsConfig(),
     networth: loadNetworthConfig(),

@@ -52,9 +52,14 @@ export function renderLedger(transactions, categoryOptions) {
     if (t.isParent) {
       detail.appendChild(el('span', 'ledger__category-split', '↔ split across categories'));
     } else if (isReadOnly()) {
+      // Same DOM as the editable pill (buildCategorySelect below), minus
+      // the caret and <select> — a plain label, but still styled through
+      // .ledger__category-display so it isn't just unstyled browser text.
       const pillClass = 'ledger__category-pill ledger__category-pill--readonly'
         + (!t.categoryId ? ' ledger__category-pill--uncategorized' : '');
-      detail.appendChild(el('span', pillClass, t.category || '— uncategorized —'));
+      const pill = el('span', pillClass);
+      pill.appendChild(el('span', 'ledger__category-display', t.category || '— uncategorized —'));
+      detail.appendChild(pill);
     } else {
       detail.appendChild(buildCategorySelect(t, categoryOptions));
     }

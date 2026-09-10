@@ -18,6 +18,16 @@ cd "$SCRIPT_DIR"
 
 BACKUP_DIR="$SCRIPT_DIR/backups"
 KEEP="${KEEP:-14}"   # override with KEEP=N ./backup.sh to keep more/fewer
+case "$KEEP" in
+  ''|*[!0-9]*)
+    echo "KEEP must be a positive integer (got: '$KEEP')" >&2
+    exit 1
+    ;;
+esac
+if [ "$KEEP" -eq 0 ]; then
+  echo "KEEP=0 would delete the archive this run is about to write — refusing. Use KEEP=1 or higher." >&2
+  exit 1
+fi
 STAMP="$(date +%Y%m%d-%H%M)"
 ARCHIVE="$BACKUP_DIR/family-ledger-${STAMP}.tar.gz"
 
@@ -58,9 +68,16 @@ if [ "$DOCKER_QUERY_OK" = 1 ] && printf '%s\n' "$RUNNING_SERVICES" | grep -qx ac
   ACTUAL_WAS_RUNNING=1
 fi
 
+ACTUAL_STOPPED_BY_US=0
 if [ "$ACTUAL_WAS_RUNNING" = 1 ]; then
+  # Registered before the stop call (not after it succeeds) so a Ctrl-C
+  # in the gap between "docker compose stop" completing and a trap line
+  # running can't leave Actual down with no trap left to bring it back.
+  # It only restarts once $ACTUAL_STOPPED_BY_US is 1, set right after the
+  # stop call actually succeeds below — never on a failed/interrupted one.
+  trap '[ "$ACTUAL_STOPPED_BY_US" = 1 ] && docker compose start actual-server >/dev/null 2>&1; true' EXIT INT TERM
   if docker compose stop actual-server >/dev/null 2>&1; then
-    trap 'docker compose start actual-server >/dev/null 2>&1 || true' EXIT
+    ACTUAL_STOPPED_BY_US=1
     echo "Paused actual-server for a consistent snapshot (will restart it before this script exits)."
   else
     echo "WARNING: actual-server is running but couldn't be stopped — this backup is a snapshot of a LIVE database."

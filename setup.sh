@@ -208,6 +208,13 @@ if [ -f "$ENV_FILE" ]; then
   fi
 fi
 
+# Runs on every path once .env exists — including "kept" .env files from
+# a pre-1.1.0 install that predates this repo tightening permissions, so
+# an upgrade brings them in line with docs/UPGRADING.md without requiring
+# full setup to run again. The in-block chmods below cover the
+# freshly-written file the moment each half of it lands on disk.
+[ -f "$ENV_FILE" ] && chmod 600 "$ENV_FILE"
+
 if [ "$NEED_FULL_SETUP" = "1" ]; then
   DEFAULT_TZ="$(detect_timezone)"
 

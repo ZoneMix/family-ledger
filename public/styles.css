@@ -1072,17 +1072,6 @@ button.section__eyebrow--toggle.is-expanded {
   text-overflow: ellipsis;
 }
 
-.ledger__category {
-  font-family: 'Fraunces', serif;
-  font-variation-settings: "opsz" 14;
-  font-style: italic;
-  font-size: 0.78rem;
-  color: var(--ink-faded);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Inline category picker — OVERLAY pattern.
    A visible <span class="ledger__category-display"> shows the current
    category name. A tiny caret <span> sits right next to it. An invisible
