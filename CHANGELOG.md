@@ -46,9 +46,8 @@ setting is off by default. See [docs/UPGRADING.md](docs/UPGRADING.md#100--110) f
 - `READ_ONLY=true` turns the dashboard into a viewer: automatic and manual bank sync,
   recategorizing, and splitting are disabled, both in the UI (the sync button hides, category
   pills and split amounts become inert) and at the API (403 on the affected routes).
-- `backup.sh` now stops `actual-server` before archiving, for a consistent snapshot of its live
-  SQLite database, and restarts it afterward via an `EXIT` trap — but only if this run is the one
-  that stopped it, so a deliberately-stopped Actual instance stays stopped.
+- `backup.sh` now stops `actual-server` before archiving, so the tarball isn't a snapshot of a
+  live, mid-write SQLite database.
 - Every backup archive is now verified before the script reports success (`gzip -t` + `tar -tzf`
   for a plain archive, an age-header check for an encrypted one); a failed verification deletes
   the bad archive and exits with an error instead of leaving a silently-corrupt backup behind.

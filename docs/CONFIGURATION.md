@@ -31,7 +31,7 @@ A few more variables exist for advanced/internal use and are set automatically i
 
 ### Secret files
 
-Every secret variable — `ACTUAL_PASSWORD`, `DASHBOARD_PASSWORD`, and `ACTUAL_FILE_PASSWORD` — also accepts a `<NAME>_FILE` path instead of the value itself (e.g. `ACTUAL_PASSWORD_FILE=/run/secrets/actual_password`), the Docker secrets convention. The direct variable wins if both are set. See the commented-out example in `docker-compose.yml`.
+Every secret variable — `ACTUAL_PASSWORD`, `DASHBOARD_PASSWORD`, and `ACTUAL_FILE_PASSWORD` — also accepts a `<NAME>_FILE` path instead of the value itself (e.g. `ACTUAL_PASSWORD_FILE=/run/secrets/actual_password`), the Docker secrets convention. The direct variable wins if both are set. See the commented-out example in `docker-compose.yml`. `scripts/seed-demo.js` is the one exception: it reads `ACTUAL_PASSWORD` (and `ACTUAL_FILE_PASSWORD`) directly from the environment with no `_FILE` support, so a Docker-secrets install needs to export the plain variable for the seeder to work.
 
 ### `DASHBOARD_PASSWORD` behavior
 

@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check server.js
           for f in src/*.js; do node --check "$f"; done
+          for f in public/js/*.js; do node --check "$f"; done
           node --check scripts/seed-demo.js
           node --check scripts/dev/css-audit.mjs
 
