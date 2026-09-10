@@ -30,6 +30,7 @@ if [ "$KEEP" -eq 0 ]; then
 fi
 STAMP="$(date +%Y%m%d-%H%M)"
 ARCHIVE="$BACKUP_DIR/family-ledger-${STAMP}.tar.gz"
+BACKUP_DONE=0   # set to 1 once $FINAL_ARCHIVE is written AND verified
 
 mkdir -p "$BACKUP_DIR"
 
@@ -69,13 +70,44 @@ if [ "$DOCKER_QUERY_OK" = 1 ] && printf '%s\n' "$RUNNING_SERVICES" | grep -qx ac
 fi
 
 ACTUAL_STOPPED_BY_US=0
+ACTUAL_RESTART_DONE=0
+
+# Runs exactly once no matter how the script exits — normal completion,
+# a verification failure's own `exit 1`, or a signal. Idempotent (guarded
+# by $ACTUAL_RESTART_DONE) because the `exit 130` in the INT/TERM trap
+# below deliberately unwinds through this same EXIT trap, so it can
+# legitimately run via two different trigger paths for one process exit.
+restart_actual() {
+  if [ "$ACTUAL_RESTART_DONE" = 1 ]; then
+    return
+  fi
+  ACTUAL_RESTART_DONE=1
+  if [ "$ACTUAL_STOPPED_BY_US" = 1 ]; then
+    docker compose start actual-server >/dev/null 2>&1 || true
+  fi
+  # A signal mid-tar/mid-age leaves a partial file at $ARCHIVE or
+  # $ARCHIVE.age — remove it. Never touches a FINISHED archive: that
+  # only happens once $BACKUP_DONE is set, right after verification
+  # passes, further down the script.
+  if [ "$BACKUP_DONE" != 1 ]; then
+    rm -f "$ARCHIVE" "$ARCHIVE.age"
+  fi
+}
+
 if [ "$ACTUAL_WAS_RUNNING" = 1 ]; then
   # Registered before the stop call (not after it succeeds) so a Ctrl-C
   # in the gap between "docker compose stop" completing and a trap line
   # running can't leave Actual down with no trap left to bring it back.
-  # It only restarts once $ACTUAL_STOPPED_BY_US is 1, set right after the
-  # stop call actually succeeds below — never on a failed/interrupted one.
-  trap '[ "$ACTUAL_STOPPED_BY_US" = 1 ] && docker compose start actual-server >/dev/null 2>&1; true' EXIT INT TERM
+  # restart_actual only restarts once $ACTUAL_STOPPED_BY_US is 1, set
+  # right after the stop call actually succeeds below — never on a
+  # failed/interrupted one. INT/TERM explicitly `exit` instead of
+  # merely running a handler and resuming — bash does NOT terminate a
+  # script on a trapped INT/TERM unless the handler itself exits, so
+  # without this a Ctrl-C would restart Actual but let the backup keep
+  # running to completion. The explicit exit unwinds through the EXIT
+  # trap above, so Ctrl-C both restores Actual and actually aborts.
+  trap restart_actual EXIT
+  trap 'exit 130' INT TERM
   if docker compose stop actual-server >/dev/null 2>&1; then
     ACTUAL_STOPPED_BY_US=1
     echo "Paused actual-server for a consistent snapshot (will restart it before this script exits)."
@@ -150,6 +182,10 @@ else
     exit 1
   fi
 fi
+
+# Past this point the archive is finished and verified — restart_actual's
+# cleanup must never remove it, however the script later exits.
+BACKUP_DONE=1
 
 echo "Wrote $FINAL_ARCHIVE"
 
