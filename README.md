@@ -1,6 +1,8 @@
 # The Family Ledger
 
-![The Family Ledger dashboard](docs/screenshots/dashboard.png)
+![A scrolling tour of The Family Ledger dashboard](docs/screenshots/dashboard-tour.gif)
+
+<sub>[Watch the full-quality video](https://zonemix.tech/videos/self-host-budget/v3-dashboard-tour.mp4)</sub>
 
 A friendly self-hosted family dashboard for [Actual Budget](https://actualbudget.org) — envelope budgeting at a glance, on every phone in the house.
 
